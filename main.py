@@ -86,27 +86,28 @@ def get_user_choice():
     return None
 
 
-def print_movie_rating(movie_name, rating):
+def print_movie(movies, movie_name):
     """
     Prints the movie name and its rating.
 
     Arguments:
         movie_name (str): The name of the movie.
-        rating (int): The rating of the movie.
+        movies (dict): Source for lookup
     """
-    print(f"{movie_name}: {rating}")
+    movie = movies[movie_name]
+    print(f"{movie_name} ({movie["year"]}): {movie["rating"]}")
 
 
 def print_movies(movies):
     """
-    Prints all movies and their ratings in the provided dictionary.
+    Prints all movies and their properties in the provided dictionary.
 
     Arguments:
         movies (dict): Dictionary containing movie-rating entries.
     """
     print(f"{len(movies)} movies in total")
-    for movie, rating in movies.items():
-        print_movie_rating(movie, rating)
+    for movie in movies:
+        print_movie(movies, movie)
 
 
 def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
@@ -326,7 +327,7 @@ def sort_movies_by_rating(movies, reverse=True):
     sorted_movies = dict(sorted(movies.items(), key=lambda item: item[1], reverse=reverse))
 
     for movie, rating in sorted_movies.items():
-        print_movie_rating(movie, rating)
+        print_movie(movie, rating)
 
 
 def create_rating_histogram(movies):
@@ -416,16 +417,46 @@ def wait_for_user_action():
 def main():
     # Dictionary to store the movies and the rating
     movies = {
-        "The Shawshank Redemption": 9.5,
-        "Pulp Fiction": 8.8,
-        "The Room": 3.6,
-        "The Godfather": 9.2,
-        "The Godfather: Part II": 9.0,
-        "The Dark Knight": 9.0,
-        "12 Angry Men": 8.9,
-        "Everything Everywhere All At Once": 8.9,
-        "Forrest Gump": 8.8,
-        "Star Wars: Episode V": 8.7
+        "The Shawshank Redemption": {
+            "rating": 9.5,
+            "year": 1994
+        },
+        "Pulp Fiction": {
+            "rating": 8.8,
+            "year": 1994
+        },
+        "The Room": {
+            "rating": 3.6,
+            "year": 2003
+        },
+        "The Godfather": {
+            "rating": 9.2,
+            "year": 1972
+        },
+        "The Godfather: Part II": {
+            "rating": 9.0,
+            "year": 1974
+        },
+        "The Dark Knight": {
+            "rating": 9.0,
+            "year": 2008
+        },
+        "12 Angry Men": {
+            "rating": 8.9,
+            "year": 1957
+        },
+        "Everything Everywhere All At Once": {
+            "rating": 8.9,
+            "year": 2022
+        },
+        "Forrest Gump": {
+            "rating": 8.8,
+            "year": 1994
+        },
+        "Star Wars: Episode V": {
+            "rating": 8.7,
+            "year": 1980
+        }
     }
 
     print("********** My Movies Database **********")
