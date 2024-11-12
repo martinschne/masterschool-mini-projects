@@ -173,6 +173,19 @@ def get_valid_movie(message, movies):
     return user_movie
 
 
+def get_movie_ratings(movies):
+    """
+    Get ratings from movies dictionary and return it as a list
+
+    Arguments:
+        movies (dict): Dictionary from which the ratings will be read.
+
+    Returns:
+         list: The movie ratings for every movie in movies dict
+    """
+    return [m["rating"] for m in movies.values()]
+
+
 def delete_movie(movies):
     """
     Deletes a movie from the provided movie dictionary.
@@ -216,7 +229,7 @@ def print_statistics(movies):
     Arguments:
         movies (dict): Dictionary containing movies and their ratings.
     """
-    ratings = [m["rating"] for m in movies.values()]
+    ratings = get_movie_ratings(movies)
     avg_rating = statistics.mean(ratings)
     median_rating = statistics.median(ratings)
 
@@ -238,7 +251,7 @@ def print_random_movie(movies):
     """
     movie_list = list(movies.keys())
     random_movie = random.choice(movie_list)
-    random_rating = movies[random_movie]
+    random_rating = movies[random_movie]["rating"]
 
     print(f"Your movie for tonight: {random_movie}, it's rated: {random_rating}")
 
@@ -255,7 +268,7 @@ def fuzzy_search_movie(search_term, movies, n=2, cutoff=0.7):
             Defaults to 2.
         cutoff (float, optional): A threshold value between 0 and 1,
         representing how close a match should be to search term. Defaults to 0.7.
-        """
+    """
     normalized_search_term = get_normalized_text(search_term)
     write_search_info = True
 
@@ -311,9 +324,9 @@ def search_movie(movies):
     search_term = get_colored_input("Enter part of movie name: ")
     search_term_lower = get_normalized_text(search_term)
     match_found = False
-    for movie, rating in movies.items():
+    for movie, movie_data in movies.items():
         if search_term_lower in get_normalized_text(movie):
-            print(f"{movie}, {rating}")
+            print(f"{movie}, {movie_data["rating"]}")
             match_found = True
 
     if not match_found:
@@ -328,10 +341,10 @@ def sort_movies_by_rating(movies, reverse=True):
         movies (dict): Dictionary containing movies and their ratings.
         reverse (bool): If True, sorts in descending order, otherwise ascending.
     """
-    sorted_movies = dict(sorted(movies.items(), key=lambda item: item[1], reverse=reverse))
+    sorted_movies = dict(sorted(movies.items(), key=lambda item: item[1]["rating"], reverse=reverse))
 
-    for movie, rating in sorted_movies.items():
-        print_movie(movie, rating)
+    for movie in sorted_movies:
+        print_movie(movies, movie)
 
 
 def create_rating_histogram(movies):
@@ -347,7 +360,7 @@ def create_rating_histogram(movies):
     Raises:
         Prints an error message if the filename is invalid or contains restricted characters.
     """
-    ratings = list(movies.values())
+    ratings = get_movie_ratings(movies)
 
     # create histogram
     plt.hist(ratings)
@@ -364,8 +377,9 @@ def create_rating_histogram(movies):
         print_error("Invalid filename")
         return
 
-    # save figure to the file
+    # save figure to the file and release resources
     plt.savefig(f"{user_filename}.png")
+    plt.close()
 
 
 def execute_task(user_choice, movies):
