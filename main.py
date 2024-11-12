@@ -131,22 +131,26 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
 
 def add_movie(movies):
     """
-    Add new movie to provided 'movies' dictionary
+    Add new movie with its properties to 'movies' dictionary
 
     Arguments:
-        'movies' - dictionary to add new movie-rating pair to
+        'movies' - dictionary to add new movie record to
 
     Note:
         Possible side effect!
         The function can modify original 'movies' dictionary provided
     """
     user_movie = get_colored_input("Enter new movie name: ")
-
+    user_year = int(get_colored_input("Enter new movie year: "))
     user_rating = get_valid_rating()
     if user_rating is None:
         return
 
-    movies[user_movie] = user_rating
+    movies[user_movie] = {
+        "rating": user_rating,
+        "year": user_year
+    }
+
     print(f"Movie {user_movie} successfully added")
 
 
