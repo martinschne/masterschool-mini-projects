@@ -1,3 +1,5 @@
+import movies_storage
+
 import random
 import re
 import statistics
@@ -437,49 +439,7 @@ def wait_for_user_action():
 
 def main():
     """Main function to run the program."""
-    # Dictionary to store the movies and the rating
-    movies = {
-        "The Shawshank Redemption": {
-            "rating": 9.5,
-            "year": 1994
-        },
-        "Pulp Fiction": {
-            "rating": 8.8,
-            "year": 1994
-        },
-        "The Room": {
-            "rating": 3.6,
-            "year": 2003
-        },
-        "The Godfather": {
-            "rating": 9.2,
-            "year": 1972
-        },
-        "The Godfather: Part II": {
-            "rating": 9.0,
-            "year": 1974
-        },
-        "The Dark Knight": {
-            "rating": 9.0,
-            "year": 2008
-        },
-        "12 Angry Men": {
-            "rating": 8.9,
-            "year": 1957
-        },
-        "Everything Everywhere All At Once": {
-            "rating": 8.9,
-            "year": 2022
-        },
-        "Forrest Gump": {
-            "rating": 8.8,
-            "year": 1994
-        },
-        "Star Wars: Episode V": {
-            "rating": 8.7,
-            "year": 1980
-        }
-    }
+    movies = movies_storage.get_movies()
 
     print("********** My Movies Database **********")
 
