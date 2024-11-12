@@ -1,6 +1,7 @@
 import random
 import re
 import statistics
+import sys
 import unicodedata
 from difflib import get_close_matches
 
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 
 MENU_ITEMS = [
+    "Exit",
     "List movies",
     "Add movie",
     "Delete movie",
@@ -66,7 +68,7 @@ def print_menu():
     """
     print(f"{Colors.YELLOW}\nMenu:")
     for count, item in enumerate(MENU_ITEMS):
-        print(f"{count + 1}. {item}")
+        print(f"{count}. {item}")
     print(f"{Colors.RESET}")
 
 
@@ -78,8 +80,8 @@ def get_user_choice():
         int: The user's selected option as an integer if valid, otherwise None.
     """
     last_item_number = len(MENU_ITEMS)
-    selected_number = int(get_colored_input(f"Enter choice (1-{last_item_number}): "))
-    if 1 <= selected_number <= last_item_number:
+    selected_number = int(get_colored_input(f"Enter choice (0-{last_item_number}): "))
+    if 0 <= selected_number <= last_item_number:
         return selected_number
     return None
 
@@ -378,7 +380,9 @@ def execute_task(user_choice, movies):
 
     print()
 
-    if user_choice == 1:
+    if user_choice == 0:
+        sys.exit("Bye!")
+    elif user_choice == 1:
         print_movies(movies)
     elif user_choice == 2:
         add_movie(movies)
