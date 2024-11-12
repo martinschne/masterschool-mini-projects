@@ -4,7 +4,7 @@ import statistics
 import sys
 import unicodedata
 from difflib import get_close_matches
-
+# pylint: disable=import-error
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -27,13 +27,14 @@ MENU_ITEMS = [
 MIN_MOVIE_RATING = 0
 MAX_MOVIE_RATING = 10
 
-
-class Colors:
-    RESET = '\033[0m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    GREEN = '\033[92m'
-    CYAN = '\033[96m'
+# This dictionary defines ANSI escape codes for text coloring in terminal output.
+COLORS = {
+    "RESET": '\033[0m',
+    "RED": '\033[91m',
+    "YELLOW": '\033[93m',
+    "GREEN": '\033[92m',
+    "CYAN": '\033[96m'
+}
 
 
 def print_error(error_message):
@@ -43,7 +44,7 @@ def print_error(error_message):
     Arguments:
         error_message (str): Error content printed out to the console
     """
-    print(f"{Colors.RED}{error_message}{Colors.RESET}")
+    print(f"{COLORS['RED']}{error_message}{COLORS['RESET']}")
 
 
 def get_colored_input(prompt):
@@ -56,8 +57,8 @@ def get_colored_input(prompt):
     Returns:
         Colored user input
     """
-    user_input = input(f"{Colors.GREEN}{prompt}{Colors.CYAN}")
-    print(f"{Colors.RESET}", end="")
+    user_input = input(f"{COLORS['GREEN']}{prompt}{COLORS['CYAN']}")
+    print(f"{COLORS['RESET']}", end="")
 
     return user_input
 
@@ -66,10 +67,10 @@ def print_menu():
     """
     Prints the available menu items. Menu will be printed in distinct color
     """
-    print(f"{Colors.YELLOW}\nMenu:")
+    print(f"{COLORS['YELLOW']}\nMenu:")
     for count, item in enumerate(MENU_ITEMS):
         print(f"{count}. {item}")
-    print(f"{Colors.RESET}")
+    print(f"{COLORS['RESET']}")
 
 
 def get_user_choice():
@@ -95,7 +96,7 @@ def print_movie(movies, movie_name):
         movies (dict): Source for lookup
     """
     movie = movies[movie_name]
-    print(f"{movie_name} ({movie["year"]}): {movie["rating"]}")
+    print(f"{movie_name} ({movie['year']}): {movie['rating']}")
 
 
 def print_movies(movies):
@@ -256,7 +257,7 @@ def print_random_movie(movies):
     print(f"Your movie for tonight: {random_movie}, it's rated: {random_rating}")
 
 
-def fuzzy_search_movie(search_term, movies, n=2, cutoff=0.7):
+def fuzzy_search_movie(search_term, movies, close_word_matches_max=2, cutoff=0.7):
     """
     Performs a fuzzy search on a list of movie titles to find approximate
     matches in movie words based on a search term.
@@ -264,21 +265,21 @@ def fuzzy_search_movie(search_term, movies, n=2, cutoff=0.7):
     Arguments:
         search_term (str): The partial movie title to search for.
         movies (dict): A dictionary containing movie-rating key-value pairs.
-        n (int, optional): The maximum of close word matches found in movie title.
-            Defaults to 2.
+        close_word_matches_max (int, optional):
+            The maximum of close word matches found in movie title. Defaults to 2.
         cutoff (float, optional): A threshold value between 0 and 1,
         representing how close a match should be to search term. Defaults to 0.7.
     """
     normalized_search_term = get_normalized_text(search_term)
     write_search_info = True
 
-    for movie, rating in movies.items():
+    for movie in movies:
         normalized_movie_title = get_normalized_text(movie)
         # compare each word of movie with search term
         # return up to 'n' closest matching words
         close_matches_count = len(get_close_matches(normalized_search_term,
                                                     normalized_movie_title.split(),
-                                                    n=n, cutoff=cutoff))
+                                                    n=close_word_matches_max, cutoff=cutoff))
         # print movie with at least one search matching word found in its title
         if close_matches_count > 0:
             if write_search_info:
@@ -326,7 +327,7 @@ def search_movie(movies):
     match_found = False
     for movie, movie_data in movies.items():
         if search_term_lower in get_normalized_text(movie):
-            print(f"{movie}, {movie_data["rating"]}")
+            print(f"{movie}, {movie_data['rating']}")
             match_found = True
 
     if not match_found:
@@ -341,7 +342,9 @@ def sort_movies_by_rating(movies, reverse=True):
         movies (dict): Dictionary containing movies and their ratings.
         reverse (bool): If True, sorts in descending order, otherwise ascending.
     """
-    sorted_movies = dict(sorted(movies.items(), key=lambda item: item[1]["rating"], reverse=reverse))
+    sorted_movies = dict(
+        sorted(movies.items(), key=lambda item: item[1]["rating"], reverse=reverse)
+    )
 
     for movie in sorted_movies:
         print_movie(movies, movie)
@@ -433,6 +436,7 @@ def wait_for_user_action():
 
 
 def main():
+    """Main function to run the program."""
     # Dictionary to store the movies and the rating
     movies = {
         "The Shawshank Redemption": {
@@ -490,7 +494,7 @@ def main():
                 wait_for_user_action()
     finally:
         # Reset output color upon expected or unexpected exit
-        print(Colors.RESET, end="")
+        print(COLORS['RESET'], end="")
 
 
 if __name__ == "__main__":
