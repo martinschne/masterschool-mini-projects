@@ -216,12 +216,12 @@ def print_statistics(movies):
     Arguments:
         movies (dict): Dictionary containing movies and their ratings.
     """
-    ratings = movies.values()
+    ratings = [m["rating"] for m in movies.values()]
     avg_rating = statistics.mean(ratings)
     median_rating = statistics.median(ratings)
 
-    highest_rated_movie = max(movies, key=movies.get)
-    lowest_rated_movie = min(movies, key=movies.get)
+    highest_rated_movie = max(movies, key=lambda movie: movies[movie]["rating"])
+    lowest_rated_movie = min(movies, key=lambda movie: movies[movie]["rating"])
 
     print(f"Average rating: {avg_rating}")
     print(f"Median rating: {median_rating}")
