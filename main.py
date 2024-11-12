@@ -132,28 +132,15 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
     return user_rating
 
 
-def add_movie(movies):
-    """
-    Add new movie with its properties to 'movies' dictionary
-
-    Arguments:
-        'movies' - dictionary to add new movie record to
-
-    Note:
-        Possible side effect!
-        The function can modify original 'movies' dictionary provided
-    """
+def add_movie():
+    """Save new movie with its properties to 'movies.json' file"""
     user_movie = get_colored_input("Enter new movie name: ")
     user_year = int(get_colored_input("Enter new movie year: "))
     user_rating = get_valid_rating()
     if user_rating is None:
         return
 
-    movies[user_movie] = {
-        "rating": user_rating,
-        "year": user_year
-    }
-
+    movies_storage.add_movie(user_movie, user_year, user_rating)
     print(f"Movie {user_movie} successfully added")
 
 
@@ -409,7 +396,7 @@ def execute_task(user_choice, movies):
     elif user_choice == 1:
         print_movies(movies)
     elif user_choice == 2:
-        add_movie(movies)
+        add_movie()
     elif user_choice == 3:
         delete_movie(movies)
     elif user_choice == 4:

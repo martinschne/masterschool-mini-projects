@@ -38,5 +38,9 @@
   "Star Wars: Episode V": {
     "rating": 8.7,
     "year": 1980
+  },
+  "helo": {
+    "year": 1,
+    "rating": 10.0
   }
 }
