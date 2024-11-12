@@ -1,14 +1,15 @@
-import movies_storage
-
 import random
 import re
 import statistics
 import sys
 import unicodedata
 from difflib import get_close_matches
+
 # pylint: disable=import-error
 import matplotlib
 import matplotlib.pyplot as plt
+
+import movies_storage
 
 # Use the Agg backend for rendering to a file
 matplotlib.use('Agg')
@@ -133,15 +134,27 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
 
 
 def add_movie():
-    """Save new movie with its properties to 'movies.json' file"""
+    """
+        Saves new movie with its properties to 'movies.json' file
+
+        Returns:
+            Tuple of: 'user_movie' (str) and 'user_movie_data' (dict)
+    """
     user_movie = get_colored_input("Enter new movie name: ")
     user_year = int(get_colored_input("Enter new movie year: "))
     user_rating = get_valid_rating()
     if user_rating is None:
-        return
+        return user_movie, None
 
     movies_storage.add_movie(user_movie, user_year, user_rating)
     print(f"Movie {user_movie} successfully added")
+
+    user_movie_data = {
+        "rating": user_rating,
+        "year": user_year
+    }
+
+    return user_movie, user_movie_data
 
 
 def get_valid_movie(message, movies):
@@ -178,17 +191,23 @@ def get_movie_ratings(movies):
 
 def delete_movie(movies):
     """
-    Deletes a movie from the provided movie dictionary.
+    Get movie name from user input, validate its existence in loaded 'movies' dict
+    and delete the movie from stored data.
 
     Arguments:
-        movies (dict): Dictionary from which the movie will be deleted.
+        movies (dict): Loaded movie data for validation against user input.
+
+    Returns:
+        deleted_movie (str): Movie title that was deleted
     """
     deleted_movie = get_valid_movie("Enter movie name to delete: ", movies)
     if deleted_movie is None:
-        return
+        return None
 
-    del movies[deleted_movie]
+    movies_storage.delete_movie(deleted_movie)
     print("Movie successfully deleted")
+
+    return deleted_movie
 
 
 def update_movie(movies):
@@ -197,17 +216,22 @@ def update_movie(movies):
 
     Arguments:
         movies (dict): Dictionary containing movies and their ratings.
+
+    Returns:
+        Tuple of: updated_movie (str) and updated_rating (int)
     """
     updated_movie = get_valid_movie("Enter movie name: ", movies)
     if updated_movie is None:
-        return
+        return None, None
 
     updated_rating = get_valid_rating()
     if updated_rating is None:
-        return
+        return None, None
 
-    movies[updated_movie]["rating"] = updated_rating
+    movies_storage.update_movie(updated_movie, updated_rating)
     print(f"Movie {updated_movie} successfully updated")
+
+    return updated_movie, updated_rating
 
 
 def print_statistics(movies):
@@ -384,6 +408,15 @@ def execute_task(user_choice, movies):
 
     Returns:
         bool: True if the task was successfully completed, False otherwise.
+    Note:
+        Task functions add/delete/update bellow cause direct side-effect:
+        updating 'movies' dictionary.
+        This approach avoids introducing side effects in more functions,
+        namely those that are mutating the data:
+            add_movie
+            delete_movie
+            update_movie
+        and saves expensive read operations on stored data.
     """
     if user_choice is None:
         print_error("Invalid choice")
@@ -396,11 +429,20 @@ def execute_task(user_choice, movies):
     elif user_choice == 1:
         print_movies(movies)
     elif user_choice == 2:
-        add_movie()
+        new_movie, new_movie_data = add_movie()
+        if new_movie_data is None:
+            return False
+        movies[new_movie] = new_movie_data
     elif user_choice == 3:
-        delete_movie(movies)
+        deleted_movie = delete_movie(movies)
+        if deleted_movie is None:
+            return False
+        movies.pop(deleted_movie, None)
     elif user_choice == 4:
-        update_movie(movies)
+        updated_movie, updated_rating = update_movie(movies)
+        if updated_rating is None:
+            return False
+        movies[updated_movie]["rating"] = updated_rating
     elif user_choice == 5:
         print_statistics(movies)
     elif user_choice == 6:
