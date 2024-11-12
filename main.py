@@ -203,7 +203,7 @@ def update_movie(movies):
     if updated_rating is None:
         return
 
-    movies[updated_movie] = updated_rating
+    movies[updated_movie]["rating"] = updated_rating
     print(f"Movie {updated_movie} successfully updated")
 
 
