@@ -211,17 +211,18 @@ def add_movie():
 def get_existing_movie(message, movies):
     """
     Prompts the user to enter a valid movie name from the provided dictionary.
+    Repeats prompts until valid movie was entered (existing movie title)
 
     Arguments:
         message (str): The message to display to the user.
         movies (dict): Dictionary of movies to validate against.
 
     Returns:
-        str: The validated movie name, or None if the movie doesn't exist.
+        str: The validated movie name.
     """
     entering_movie = True
     while entering_movie:
-        user_movie = get_valid_movie("Enter movie name to delete: ")
+        user_movie = get_valid_movie(message)
         if user_movie in movies:
             entering_movie = False
         else:
@@ -267,6 +268,7 @@ def delete_movie(movies):
 def update_movie(movies):
     """
     Updates the rating of an existing movie in the provided movie dictionary.
+    Repeatedly prompts the user until valid movie and rating values are entered.
 
     Arguments:
         movies (dict): Dictionary containing movies and their ratings.
@@ -274,13 +276,8 @@ def update_movie(movies):
     Returns:
         Tuple of: updated_movie (str) and updated_rating (int)
     """
-    updated_movie = get_existing_movie("Enter movie name: ", movies)
-    if updated_movie is None:
-        return None, None
-
+    updated_movie = get_existing_movie("Enter updated movie name: ", movies)
     updated_rating = get_valid_rating()
-    if updated_rating is None:
-        return None, None
 
     movies_storage.update_movie(updated_movie, updated_rating)
     print(f"Movie {updated_movie} successfully updated")
@@ -489,8 +486,6 @@ def execute_task(user_choice, movies):
         movies.pop(delete_movie(movies), None)
     elif user_choice == 4:
         updated_movie, updated_rating = update_movie(movies)
-        if updated_rating is None:
-            return False
         movies[updated_movie]["rating"] = updated_rating
     elif user_choice == 5:
         print_statistics(movies)
