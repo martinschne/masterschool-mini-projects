@@ -138,7 +138,7 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
 
             entering_rating = False
         except ValueError:
-            print_error(f"Rating {user_rating} is invalid")
+            print_error("Invalid rating")
 
     return user_rating
 
@@ -160,7 +160,7 @@ def get_valid_year():
 
             entering_year = False
         except ValueError:
-            print_error(f"Year {user_year} is invalid")
+            print_error("Invalid year")
 
     return user_year
 
@@ -175,13 +175,13 @@ def get_valid_movie():
     entering_movie = True
     while entering_movie:
         try:
-            user_movie = get_colored_input("Enter new movie name: ")
+            user_movie = get_colored_input("Enter new movie name: ").strip()
             if len(user_movie) < 1:
                 raise ValueError
 
             entering_movie = False
         except ValueError:
-            print_error(f"Movie name cannot be empty")
+            print_error("Movie name cannot be empty")
 
     return user_movie
 
@@ -196,8 +196,6 @@ def add_movie():
     user_movie = get_valid_movie()
     user_year = get_valid_year()
     user_rating = get_valid_rating()
-    if user_rating is None:
-        return user_movie, None
 
     movies_storage.add_movie(user_movie, user_year, user_rating)
     print(f"Movie {user_movie} successfully added")
@@ -210,7 +208,7 @@ def add_movie():
     return user_movie, user_movie_data
 
 
-def get_valid_movie(message, movies):
+def get_existing_movie(message, movies):
     """
     Prompts the user to enter a valid movie name from the provided dictionary.
 
@@ -253,7 +251,7 @@ def delete_movie(movies):
     Returns:
         deleted_movie (str): Movie title that was deleted
     """
-    deleted_movie = get_valid_movie("Enter movie name to delete: ", movies)
+    deleted_movie = get_existing_movie("Enter movie name to delete: ", movies)
     if deleted_movie is None:
         return None
 
@@ -273,7 +271,7 @@ def update_movie(movies):
     Returns:
         Tuple of: updated_movie (str) and updated_rating (int)
     """
-    updated_movie = get_valid_movie("Enter movie name: ", movies)
+    updated_movie = get_existing_movie("Enter movie name: ", movies)
     if updated_movie is None:
         return None, None
 
@@ -483,8 +481,6 @@ def execute_task(user_choice, movies):
         print_movies(movies)
     elif user_choice == 2:
         new_movie, new_movie_data = add_movie()
-        if new_movie_data is None:
-            return False
         movies[new_movie] = new_movie_data
     elif user_choice == 3:
         deleted_movie = delete_movie(movies)
