@@ -301,7 +301,7 @@ def print_statistics(movies):
     highest_rated_movie = max(movies, key=lambda movie: movies[movie]["rating"])
     lowest_rated_movie = min(movies, key=lambda movie: movies[movie]["rating"])
 
-    print(f"Average rating: {avg_rating}")
+    print(f"Average rating: {avg_rating:.1f}")
     print(f"Median rating: {median_rating}")
     print(f"Best movie: {highest_rated_movie}")
     print(f"Worst movie: {lowest_rated_movie}")
