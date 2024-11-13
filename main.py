@@ -49,7 +49,7 @@ COLORS = {
 
 def print_error(error_message: str):
     """
-    Prints error output in red color to the console
+    Prints error output in red color to the console.
 
     Arguments:
         error_message (str): Error content printed out to the console
@@ -59,7 +59,7 @@ def print_error(error_message: str):
 
 def get_colored_input(prompt: str) -> str:
     """
-    Set distinct color for a prompt and input, collect and return user input
+    Set distinct color for a prompt and input, collect and return user input.
 
     Arguments:
         prompt: (str): The prompt
@@ -100,8 +100,8 @@ def print_movie(movies: dict, movie_name: str):
     Prints the movie name and its rating.
 
     Arguments:
-        movie_name (str): The name of the movie.
-        movies (dict): Source for lookup
+        movie_name (str): name of the movie
+        movies (dict): lookup source
     """
     movie = movies[movie_name]
     print(f"{movie_name} ({movie['year']}): {movie['rating']}")
@@ -143,11 +143,11 @@ def get_valid_rating(
         min_rating (int): Minimum allowed rating.
         max_rating (int): Maximum allowed rating.
         prompt (str): Default prompt is set inside a function,
-            other prompt can be provided during function call
+            other prompt can be provided during function call.
         allow_empty_input (bool): allows empty string as a valid rating
 
     Returns:
-        (float): The validated rating entered by the user as float or an empty string
+        (float): The validated rating entered by the user as float or an empty string.
     """
     if prompt is None:
         prompt = f"Enter new movie rating: ({min_rating}-{max_rating}): "
@@ -173,11 +173,11 @@ def get_valid_year(prompt: str = None, allow_empty_input: bool = False) -> str |
 
     Arguments:
         prompt (str): Default prompt is set inside a function,
-            other prompt can be provided during function call
-        allow_empty_input (bool): allows empty string as a valid year
+            other prompt can be provided during function call.
+        allow_empty_input (bool): allows empty string as a valid year.
 
     Returns:
-        (int): the validated year entered by the user.
+        (int): The validated year entered by the user.
     """
     current_year = datetime.now().year
     if prompt is None:
@@ -220,11 +220,10 @@ def get_valid_movie(prompt: str = "Enter new movie name: ") -> str:
 
 
 def get_valid_yes_no_answer(prompt: str) -> bool:
-    """Get input from user and validate its form (yes/no) | (y/n)
+    """Get input from user and validate its form (yes/no) or (y/n).
 
     Returns:
-        (bool): True if lowered input was 'yes'/'y',
-        False if input was 'no'/'n'
+        (bool): True if lowered input was 'yes'/'y', False otherwise.
     """
     while True:
         user_response = get_colored_input(prompt).lower()
@@ -261,7 +260,7 @@ def add_movie() -> tuple[str, dict]:
 def get_existing_movie(message: str, movies: dict) -> str:
     """
     Prompts the user to enter a valid movie name from the provided dictionary.
-    Repeats prompts until valid movie was entered (existing movie title)
+    Repeats prompts until valid movie was entered (existing movie title).
 
     Arguments:
         message (str): The message to display to the user.
@@ -280,13 +279,13 @@ def get_existing_movie(message: str, movies: dict) -> str:
 
 def get_movie_ratings(movies: dict) -> list[float]:
     """
-    Get ratings from movies dictionary and return it as a list
+    Get ratings from movies dictionary and return it as a list.
 
     Arguments:
         movies (dict): Dictionary from which the ratings will be read.
 
     Returns:
-         list: The movie ratings for every movie in movies dict
+         list: The movie ratings for every movie in movies dict.
     """
     return [m[RATING_KEY] for m in movies.values()]
 
@@ -300,7 +299,7 @@ def delete_movie(movies: dict) -> str:
         movies (dict): Loaded movie data for validation against user input.
 
     Returns:
-        deleted_movie (str): Movie title that was deleted
+        deleted_movie (str): Movie title that was deleted.
     """
     deleted_movie = get_existing_movie("Enter movie name to delete: ", movies)
 
@@ -319,7 +318,7 @@ def update_movie(movies: dict) -> tuple[str, float]:
         movies (dict): Dictionary containing movies and their data (years/ratings).
 
     Returns:
-        Tuple of: updated_movie (str) and updated_rating (int)
+        Tuple of: updated_movie (str) and updated_rating (int).
     """
     updated_movie = get_existing_movie("Enter updated movie name: ", movies)
     updated_rating = get_valid_rating()
@@ -505,7 +504,7 @@ def create_rating_histogram(movies: dict):
     Generates and saves a histogram of movie ratings from a dictionary of movies.
 
     Arguments:
-        movies (dict): A dictionary with movie titles as keys and movie data dictionaries as values.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
 
     Displays:
         Prompts the user to enter a filename to save the histogram as a PNG image.
@@ -541,7 +540,7 @@ def execute_task(user_choice: int, movies: dict) -> bool:
 
     Arguments:
         user_choice (int): The option selected by the user.
-        movies (dict): Dictionary containing movies and their data years/ratings.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
 
     Returns:
         bool: True if the task was successfully completed, False otherwise.
