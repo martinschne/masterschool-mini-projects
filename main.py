@@ -374,7 +374,7 @@ def search_movie(movies):
     Arguments:
         movies (dict): Dictionary containing movies and their ratings.
     """
-    search_term = get_colored_input("Enter part of movie name: ")
+    search_term = get_valid_movie("Enter part of movie name: ")
     search_term_lower = get_normalized_text(search_term)
     match_found = False
     for movie, movie_data in movies.items():
