@@ -3,6 +3,7 @@ import re
 import statistics
 import sys
 import unicodedata
+from datetime import datetime
 from difflib import get_close_matches
 
 # pylint: disable=import-error
@@ -29,6 +30,7 @@ MENU_ITEMS = [
 
 MIN_MOVIE_RATING = 0
 MAX_MOVIE_RATING = 10
+FIRST_MOVIE_EVER_YEAR = 1878
 
 # This dictionary defines ANSI escape codes for text coloring in terminal output.
 COLORS = {
@@ -123,14 +125,65 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
         max_rating (int): Maximum allowed rating.
 
     Returns:
-        int: The validated rating entered by the user, or None if invalid.
+        int: The validated rating entered by the user.
     """
-    user_rating = float(get_colored_input(f"Enter new movie rating: ({min_rating}-{max_rating}): "))
-    if not min_rating <= user_rating <= max_rating:
-        print_error(f"Rating {user_rating} is invalid")
-        return None
+    entering_rating = True
+    while entering_rating:
+        try:
+            user_rating = float(
+                get_colored_input(f"Enter new movie rating: ({min_rating}-{max_rating}): ")
+            )
+            if not min_rating <= user_rating <= max_rating:
+                raise ValueError
+
+            entering_rating = False
+        except ValueError:
+            print_error(f"Rating {user_rating} is invalid")
 
     return user_rating
+
+
+def get_valid_year():
+    """
+    Prompts the user to input a valid movie rating within a specified range.
+
+    Returns:
+        int: The validated year entered by the user.
+    """
+    current_year = datetime.now().year
+    entering_year = True
+    while entering_year:
+        try:
+            user_year = int(get_colored_input("Enter new movie year: "))
+            if not FIRST_MOVIE_EVER_YEAR <= user_year <= current_year:
+                raise ValueError
+
+            entering_year = False
+        except ValueError:
+            print_error(f"Year {user_year} is invalid")
+
+    return user_year
+
+
+def get_valid_movie():
+    """
+    Prompts the user to input a valid movie title.
+
+    Returns:
+        int: The validated movie title entered by the user, or None if invalid.
+    """
+    entering_movie = True
+    while entering_movie:
+        try:
+            user_movie = get_colored_input("Enter new movie name: ")
+            if len(user_movie) < 1:
+                raise ValueError
+
+            entering_movie = False
+        except ValueError:
+            print_error(f"Movie name cannot be empty")
+
+    return user_movie
 
 
 def add_movie():
@@ -140,8 +193,8 @@ def add_movie():
         Returns:
             Tuple of: 'user_movie' (str) and 'user_movie_data' (dict)
     """
-    user_movie = get_colored_input("Enter new movie name: ")
-    user_year = int(get_colored_input("Enter new movie year: "))
+    user_movie = get_valid_movie()
+    user_year = get_valid_year()
     user_rating = get_valid_rating()
     if user_rating is None:
         return user_movie, None
