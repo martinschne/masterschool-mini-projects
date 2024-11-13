@@ -83,7 +83,7 @@ def get_user_choice():
     Returns:
         int: The user's selected option as an integer if valid, otherwise None.
     """
-    last_item_number = len(MENU_ITEMS)
+    last_item_number = len(MENU_ITEMS) - 1
     selected_number = int(get_colored_input(f"Enter choice (0-{last_item_number}): "))
     if 0 <= selected_number <= last_item_number:
         return selected_number
@@ -475,8 +475,14 @@ def main():
     try:
         while True:
             print_menu()
-
-            user_choice = get_user_choice()
+            try:
+                user_choice = get_user_choice()
+                if user_choice is None:
+                    raise ValueError
+            except ValueError:
+                print_error("Invalid choice, please try again.\n")
+                wait_for_user_action()
+                continue
             task_is_completed = execute_task(user_choice, movies)
 
             if task_is_completed:
