@@ -127,8 +127,7 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
     Returns:
         int: The validated rating entered by the user.
     """
-    entering_rating = True
-    while entering_rating:
+    while True:
         try:
             user_rating = float(
                 get_colored_input(f"Enter new movie rating: ({min_rating}-{max_rating}): ")
@@ -136,11 +135,9 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
             if not min_rating <= user_rating <= max_rating:
                 raise ValueError
 
-            entering_rating = False
+            return user_rating
         except ValueError:
             print_error("Invalid rating")
-
-    return user_rating
 
 
 def get_valid_year():
@@ -151,18 +148,17 @@ def get_valid_year():
         int: The validated year entered by the user.
     """
     current_year = datetime.now().year
-    entering_year = True
-    while entering_year:
+    while True:
         try:
-            user_year = int(get_colored_input("Enter new movie year: "))
+            user_year = int(get_colored_input(
+                f"Enter new movie year: ({FIRST_MOVIE_EVER_YEAR}-{current_year}): ")
+            )
             if not FIRST_MOVIE_EVER_YEAR <= user_year <= current_year:
                 raise ValueError
 
-            entering_year = False
+            return user_year
         except ValueError:
             print_error("Invalid year")
-
-    return user_year
 
 
 def get_valid_movie(prompt="Enter new movie name: "):
@@ -172,18 +168,15 @@ def get_valid_movie(prompt="Enter new movie name: "):
     Returns:
         int: The validated movie title entered by the user, or None if invalid.
     """
-    entering_movie = True
-    while entering_movie:
+    while True:
         try:
             user_movie = get_colored_input(prompt).strip()
             if len(user_movie) < 1:
                 raise ValueError
 
-            entering_movie = False
+            return user_movie
         except ValueError:
-            print_error("Movie name cannot be empty")
-
-    return user_movie
+            print_error("Movie name cannot be empty.")
 
 
 def add_movie():
@@ -220,15 +213,12 @@ def get_existing_movie(message, movies):
     Returns:
         str: The validated movie name.
     """
-    entering_movie = True
-    while entering_movie:
+    while True:
         user_movie = get_valid_movie(message)
         if user_movie in movies:
-            entering_movie = False
+            return user_movie
         else:
             print_error(f"Movie {user_movie} does not exist!")
-
-    return user_movie
 
 
 def get_movie_ratings(movies):
@@ -256,8 +246,6 @@ def delete_movie(movies):
         deleted_movie (str): Movie title that was deleted
     """
     deleted_movie = get_existing_movie("Enter movie name to delete: ", movies)
-    if deleted_movie is None:
-        return None
 
     movies_storage.delete_movie(deleted_movie)
     print("Movie successfully deleted")
@@ -460,7 +448,7 @@ def execute_task(user_choice, movies):
     Returns:
         bool: True if the task was successfully completed, False otherwise.
     Note:
-        Task functions add/delete/update bellow cause direct side-effect:
+        Task functions add/delete/update bellow cause direct side effect:
         updating 'movies' dictionary.
         This approach avoids introducing side effects in more functions,
         namely those that are mutating the data:
