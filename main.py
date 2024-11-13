@@ -26,12 +26,16 @@ MENU_ITEMS = [
     "Search movie",
     "Movies sorted by rating",
     "Movies sorted by year",
+    "Filter movies by year/rating",
     "Create Rating Histogram"
 ]
 
 MIN_MOVIE_RATING = 0
 MAX_MOVIE_RATING = 10
 FIRST_MOVIE_EVER_YEAR = 1878
+
+RATING_KEY = "rating"
+YEAR_KEY = "year"
 
 # This dictionary defines ANSI escape codes for text coloring in terminal output.
 COLORS = {
@@ -43,7 +47,7 @@ COLORS = {
 }
 
 
-def print_error(error_message):
+def print_error(error_message: str):
     """
     Prints error output in red color to the console
 
@@ -53,15 +57,15 @@ def print_error(error_message):
     print(f"{COLORS['RED']}{error_message}{COLORS['RESET']}")
 
 
-def get_colored_input(prompt):
+def get_colored_input(prompt: str) -> str:
     """
     Set distinct color for a prompt and input, collect and return user input
 
     Arguments:
-         prompt: (str): The prompt
+        prompt: (str): The prompt
 
     Returns:
-        Colored user input
+        (str) colored user input string
     """
     user_input = input(f"{COLORS['GREEN']}{prompt}{COLORS['CYAN']}")
     print(f"{COLORS['RESET']}", end="")
@@ -70,9 +74,7 @@ def get_colored_input(prompt):
 
 
 def print_menu():
-    """
-    Prints the available menu items. Menu will be printed in distinct color
-    """
+    """Prints the available menu items in distinct color."""
     print(f"{COLORS['YELLOW']}\nMenu:")
     for count, item in enumerate(MENU_ITEMS):
         print(f"{count}. {item}")
@@ -84,7 +86,7 @@ def get_user_choice():
     Prompts the user to select an option from the menu.
 
     Returns:
-        int: The user's selected option as an integer if valid, otherwise None.
+        (int): The user's selected option as an integer if valid, otherwise None.
     """
     last_item_number = len(MENU_ITEMS) - 1
     selected_number = int(get_colored_input(f"Enter choice (0-{last_item_number}): "))
@@ -93,7 +95,7 @@ def get_user_choice():
     return None
 
 
-def print_movie(movies, movie_name):
+def print_movie(movies: dict, movie_name: str):
     """
     Prints the movie name and its rating.
 
@@ -105,34 +107,58 @@ def print_movie(movies, movie_name):
     print(f"{movie_name} ({movie['year']}): {movie['rating']}")
 
 
-def print_movies(movies):
+def print_movies(movies: dict):
     """
     Prints all movies and their properties in the provided dictionary.
 
     Arguments:
-        movies (dict): Dictionary containing movie-rating entries.
+        movies (dict): Dictionary containing movie - movie data (year/rating) entries.
     """
     print(f"{len(movies)} movies in total")
     for movie in movies:
         print_movie(movies, movie)
 
 
-def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
+def is_empty(text: str) -> bool:
+    """
+    Returns True if provided text is an empty string, False otherwise.
+
+    Arguments:
+        text (str): text to check
+    """
+    return text == ''
+
+
+def get_valid_rating(
+        min_rating: int = MIN_MOVIE_RATING,
+        max_rating: int = MAX_MOVIE_RATING,
+        prompt: str | None = None,
+        allow_empty_input: bool = False) -> str | float:
     """
     Prompts the user to input a valid movie rating within a specified range.
+    Validates the rating. If allow_empty_input is True and the user enters empty
+    string it becomes a return value of this function.
 
     Arguments:
         min_rating (int): Minimum allowed rating.
         max_rating (int): Maximum allowed rating.
+        prompt (str): Default prompt is set inside a function,
+            other prompt can be provided during function call
+        allow_empty_input (bool): allows empty string as a valid rating
 
     Returns:
-        int: The validated rating entered by the user.
+        (float): The validated rating entered by the user as float or an empty string
     """
+    if prompt is None:
+        prompt = f"Enter new movie rating: ({min_rating}-{max_rating}): "
+
     while True:
         try:
-            user_rating = float(
-                get_colored_input(f"Enter new movie rating: ({min_rating}-{max_rating}): ")
-            )
+            raw_input = get_colored_input(prompt).strip()
+            if allow_empty_input and is_empty(raw_input):
+                return raw_input
+
+            user_rating = float(raw_input)
             if not min_rating <= user_rating <= max_rating:
                 raise ValueError
 
@@ -141,19 +167,29 @@ def get_valid_rating(min_rating=MIN_MOVIE_RATING, max_rating=MAX_MOVIE_RATING):
             print_error("Invalid rating")
 
 
-def get_valid_year():
+def get_valid_year(prompt: str = None, allow_empty_input: bool = False) -> str | int:
     """
     Prompts the user to input a valid movie rating within a specified range.
 
+    Arguments:
+        prompt (str): Default prompt is set inside a function,
+            other prompt can be provided during function call
+        allow_empty_input (bool): allows empty string as a valid year
+
     Returns:
-        int: The validated year entered by the user.
+        (int): the validated year entered by the user.
     """
     current_year = datetime.now().year
+    if prompt is None:
+        prompt = f"Enter new movie year: ({FIRST_MOVIE_EVER_YEAR}-{current_year}): "
+
     while True:
         try:
-            user_year = int(get_colored_input(
-                f"Enter new movie year: ({FIRST_MOVIE_EVER_YEAR}-{current_year}): ")
-            )
+            raw_input = get_colored_input(prompt).strip()
+            if allow_empty_input and is_empty(raw_input):
+                return raw_input
+
+            user_year = int(raw_input)
             if not FIRST_MOVIE_EVER_YEAR <= user_year <= current_year:
                 raise ValueError
 
@@ -162,12 +198,15 @@ def get_valid_year():
             print_error("Invalid year")
 
 
-def get_valid_movie(prompt="Enter new movie name: "):
+def get_valid_movie(prompt: str = "Enter new movie name: ") -> str:
     """
     Prompts the user to input a valid movie title.
 
+    Arguments:
+        prompt (str): Default prompt is set inside a function,
+            other prompt can be provided during function call.
     Returns:
-        int: The validated movie title entered by the user, or None if invalid.
+        (str): the validated movie title entered by the user.
     """
     while True:
         try:
@@ -180,9 +219,15 @@ def get_valid_movie(prompt="Enter new movie name: "):
             print_error("Movie name cannot be empty.")
 
 
-def get_valid_yes_no_answer(prompt):
+def get_valid_yes_no_answer(prompt: str) -> bool:
+    """Get input from user and validate its form (yes/no) | (y/n)
+
+    Returns:
+        (bool): True if lowered input was 'yes'/'y',
+        False if input was 'no'/'n'
+    """
     while True:
-        user_response = get_colored_input(prompt)
+        user_response = get_colored_input(prompt).lower()
         if user_response in ['yes', 'y']:
             return True
         elif user_response in ['no', 'n']:
@@ -191,12 +236,12 @@ def get_valid_yes_no_answer(prompt):
             print_error("Please enter 'yes' or 'no'.")
 
 
-def add_movie():
+def add_movie() -> tuple[str, dict]:
     """
-        Saves new movie with its properties to 'movies.json' file
+        Saves new movie with its properties to 'movies.json' file.
 
         Returns:
-            Tuple of: 'user_movie' (str) and 'user_movie_data' (dict)
+            user_movie (str) and user_movie_data (dict) as a tuple.
     """
     user_movie = get_valid_movie()
     user_year = get_valid_year()
@@ -206,14 +251,14 @@ def add_movie():
     print(f"Movie {user_movie} successfully added")
 
     user_movie_data = {
-        "rating": user_rating,
-        "year": user_year
+        RATING_KEY: user_rating,
+        YEAR_KEY: user_year
     }
 
     return user_movie, user_movie_data
 
 
-def get_existing_movie(message, movies):
+def get_existing_movie(message: str, movies: dict) -> str:
     """
     Prompts the user to enter a valid movie name from the provided dictionary.
     Repeats prompts until valid movie was entered (existing movie title)
@@ -233,7 +278,7 @@ def get_existing_movie(message, movies):
             print_error(f"Movie {user_movie} does not exist!")
 
 
-def get_movie_ratings(movies):
+def get_movie_ratings(movies: dict) -> list[float]:
     """
     Get ratings from movies dictionary and return it as a list
 
@@ -243,10 +288,10 @@ def get_movie_ratings(movies):
     Returns:
          list: The movie ratings for every movie in movies dict
     """
-    return [m["rating"] for m in movies.values()]
+    return [m[RATING_KEY] for m in movies.values()]
 
 
-def delete_movie(movies):
+def delete_movie(movies: dict) -> str:
     """
     Get movie name from user input, validate its existence in loaded 'movies' dict
     and delete the movie from stored data.
@@ -265,13 +310,13 @@ def delete_movie(movies):
     return deleted_movie
 
 
-def update_movie(movies):
+def update_movie(movies: dict) -> tuple[str, float]:
     """
     Updates the rating of an existing movie in the provided movie dictionary.
     Repeatedly prompts the user until valid movie and rating values are entered.
 
     Arguments:
-        movies (dict): Dictionary containing movies and their ratings.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
 
     Returns:
         Tuple of: updated_movie (str) and updated_rating (int)
@@ -285,21 +330,21 @@ def update_movie(movies):
     return updated_movie, updated_rating
 
 
-def print_statistics(movies):
+def print_statistics(movies: dict):
     """
     Prints statistical information about movies:
         - average and median movie rating
-        - highest and lowest-rated movies
+        - highest and lowest-rated movie
 
     Arguments:
-        movies (dict): Dictionary containing movies and their ratings.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
     """
     ratings = get_movie_ratings(movies)
     avg_rating = statistics.mean(ratings)
     median_rating = statistics.median(ratings)
 
-    highest_rated_movie = max(movies, key=lambda movie: movies[movie]["rating"])
-    lowest_rated_movie = min(movies, key=lambda movie: movies[movie]["rating"])
+    highest_rated_movie = max(movies, key=lambda movie: movies[movie][RATING_KEY])
+    lowest_rated_movie = min(movies, key=lambda movie: movies[movie][RATING_KEY])
 
     print(f"Average rating: {avg_rating:.1f}")
     print(f"Median rating: {median_rating}")
@@ -307,28 +352,32 @@ def print_statistics(movies):
     print(f"Worst movie: {lowest_rated_movie}")
 
 
-def print_random_movie(movies):
+def print_random_movie(movies: dict):
     """
     Selects and prints a random movie from the movie dictionary.
 
     Arguments:
-        movies (dict): Dictionary containing movies and their ratings.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
     """
     movie_list = list(movies.keys())
     random_movie = random.choice(movie_list)
-    random_rating = movies[random_movie]["rating"]
+    random_rating = movies[random_movie][RATING_KEY]
 
     print(f"Your movie for tonight: {random_movie}, it's rated: {random_rating}")
 
 
-def fuzzy_search_movie(search_term, movies, close_word_matches_max=2, cutoff=0.7):
+def fuzzy_search_movie(
+        search_term: str,
+        movies: dict,
+        close_word_matches_max: int = 2,
+        cutoff: float = 0.7):
     """
     Performs a fuzzy search on a list of movie titles to find approximate
     matches in movie words based on a search term.
 
     Arguments:
         search_term (str): The partial movie title to search for.
-        movies (dict): A dictionary containing movie-rating key-value pairs.
+        movies (dict): A dictionary containing movies and their data (years/ratings).
         close_word_matches_max (int, optional):
             The maximum of close word matches found in movie title. Defaults to 2.
         cutoff (float, optional): A threshold value between 0 and 1,
@@ -356,7 +405,7 @@ def fuzzy_search_movie(search_term, movies, close_word_matches_max=2, cutoff=0.7
         print_error(f"No movie named {search_term} was found")
 
 
-def get_normalized_text(text):
+def get_normalized_text(text: str) -> str:
     """
     Normalizes text by trimming whitespace, making it case-insensitive, and removing accents.
 
@@ -379,12 +428,12 @@ def get_normalized_text(text):
     return base_normalized_text
 
 
-def search_movie(movies):
+def search_movie(movies: dict):
     """
     Performs case-insensitive partial search in movies and prints matching entries.
 
     Arguments:
-        movies (dict): Dictionary containing movies and their ratings.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
     """
     search_term = get_valid_movie("Enter part of movie name: ")
     search_term_lower = get_normalized_text(search_term)
@@ -398,16 +447,16 @@ def search_movie(movies):
         fuzzy_search_movie(search_term, movies)
 
 
-def sort_movies(movies, sort_by, reverse=True):
+def sort_movies(movies: dict, sort_by: str, reverse: bool = True):
     """
     Sorts movies by rating in descending order by default and prints them.
 
     Arguments:
-        movies (dict): Dictionary containing movies and their ratings.
+        movies (dict): Dictionary containing movies and their data (years/ratings).
         sort_by (str): Sort according to the movie data property, e.g.: 'rating', 'year'.
         reverse (bool): If True, sorts in descending order, otherwise ascending.
     """
-    if sort_by == "year":
+    if sort_by == YEAR_KEY:
         reverse = get_valid_yes_no_answer(
             "Do you want to see the latest movies first? (yes/no): "
         )
@@ -420,12 +469,43 @@ def sort_movies(movies, sort_by, reverse=True):
         print_movie(movies, movie)
 
 
-def create_rating_histogram(movies):
+def filter_movies(movies: dict):
+    """
+    Asks the user for optional filtering parameters: minimal rating, start year, end year.
+    Prints only movies matching the parameter boundaries for year or rating entered by user.
+    """
+    min_rating = get_valid_rating(
+        prompt="Enter minimum rating (leave blank for no minimum rating): ",
+        allow_empty_input=True
+    )
+    min_year = get_valid_year(
+        prompt="Enter start year (leave blank for no start year): ",
+        allow_empty_input=True
+    )
+    max_year = get_valid_year(
+        prompt="Enter end year (leave blank for no end year): ",
+        allow_empty_input=True
+    )
+
+    for movie in movies:
+        conditions_met = []
+        if not is_empty(min_rating):
+            conditions_met.append(movies[movie][RATING_KEY] >= min_rating)
+        if not is_empty(min_year):
+            conditions_met.append(movies[movie][YEAR_KEY] >= min_year)
+        if not is_empty(max_year):
+            conditions_met.append(movies[movie][YEAR_KEY] <= max_year)
+
+        if all(conditions_met):
+            print_movie(movies, movie)
+
+
+def create_rating_histogram(movies: dict):
     """
     Generates and saves a histogram of movie ratings from a dictionary of movies.
 
     Arguments:
-        movies (dict): A dictionary where keys are movie titles and values are ratings (numeric).
+        movies (dict): A dictionary with movie titles as keys and movie data dictionaries as values.
 
     Displays:
         Prompts the user to enter a filename to save the histogram as a PNG image.
@@ -455,13 +535,13 @@ def create_rating_histogram(movies):
     plt.close()
 
 
-def execute_task(user_choice, movies):
+def execute_task(user_choice: int, movies: dict) -> bool:
     """
     Executes a task based on the user's menu choice.
 
     Arguments:
         user_choice (int): The option selected by the user.
-        movies (dict): Dictionary containing movies and their ratings.
+        movies (dict): Dictionary containing movies and their data years/ratings.
 
     Returns:
         bool: True if the task was successfully completed, False otherwise.
@@ -492,7 +572,7 @@ def execute_task(user_choice, movies):
         movies.pop(delete_movie(movies), None)
     elif user_choice == 4:
         updated_movie, updated_rating = update_movie(movies)
-        movies[updated_movie]["rating"] = updated_rating
+        movies[updated_movie][RATING_KEY] = updated_rating
     elif user_choice == 5:
         print_statistics(movies)
     elif user_choice == 6:
@@ -500,10 +580,12 @@ def execute_task(user_choice, movies):
     elif user_choice == 7:
         search_movie(movies)
     elif user_choice == 8:
-        sort_movies(movies, "rating")
+        sort_movies(movies, RATING_KEY)
     elif user_choice == 9:
-        sort_movies(movies, "year")
+        sort_movies(movies, YEAR_KEY)
     elif user_choice == 10:
+        filter_movies(movies)
+    elif user_choice == 11:
         create_rating_histogram(movies)
 
     print()
