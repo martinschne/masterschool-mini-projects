@@ -165,7 +165,7 @@ def get_valid_year():
     return user_year
 
 
-def get_valid_movie():
+def get_valid_movie(prompt="Enter new movie name: "):
     """
     Prompts the user to input a valid movie title.
 
@@ -175,7 +175,7 @@ def get_valid_movie():
     entering_movie = True
     while entering_movie:
         try:
-            user_movie = get_colored_input("Enter new movie name: ").strip()
+            user_movie = get_colored_input(prompt).strip()
             if len(user_movie) < 1:
                 raise ValueError
 
@@ -219,10 +219,13 @@ def get_existing_movie(message, movies):
     Returns:
         str: The validated movie name, or None if the movie doesn't exist.
     """
-    user_movie = get_colored_input(message)
-    if user_movie not in movies:
-        print_error(f"Movie {user_movie} does not exist!")
-        return None
+    entering_movie = True
+    while entering_movie:
+        user_movie = get_valid_movie("Enter movie name to delete: ")
+        if user_movie in movies:
+            entering_movie = False
+        else:
+            print_error(f"Movie {user_movie} does not exist!")
 
     return user_movie
 
@@ -483,10 +486,7 @@ def execute_task(user_choice, movies):
         new_movie, new_movie_data = add_movie()
         movies[new_movie] = new_movie_data
     elif user_choice == 3:
-        deleted_movie = delete_movie(movies)
-        if deleted_movie is None:
-            return False
-        movies.pop(deleted_movie, None)
+        movies.pop(delete_movie(movies), None)
     elif user_choice == 4:
         updated_movie, updated_rating = update_movie(movies)
         if updated_rating is None:
