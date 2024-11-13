@@ -25,6 +25,7 @@ MENU_ITEMS = [
     "Random movie",
     "Search movie",
     "Movies sorted by rating",
+    "Movies sorted by year",
     "Create Rating Histogram"
 ]
 
@@ -177,6 +178,17 @@ def get_valid_movie(prompt="Enter new movie name: "):
             return user_movie
         except ValueError:
             print_error("Movie name cannot be empty.")
+
+
+def get_valid_yes_no_answer(prompt):
+    while True:
+        user_response = get_colored_input(prompt)
+        if user_response in ['yes', 'y']:
+            return True
+        elif user_response in ['no', 'n']:
+            return False
+        else:
+            print_error("Please enter 'yes' or 'no'.")
 
 
 def add_movie():
@@ -386,16 +398,22 @@ def search_movie(movies):
         fuzzy_search_movie(search_term, movies)
 
 
-def sort_movies_by_rating(movies, reverse=True):
+def sort_movies(movies, sort_by, reverse=True):
     """
     Sorts movies by rating in descending order by default and prints them.
 
     Arguments:
         movies (dict): Dictionary containing movies and their ratings.
+        sort_by (str): Sort according to the movie data property, e.g.: 'rating', 'year'.
         reverse (bool): If True, sorts in descending order, otherwise ascending.
     """
+    if sort_by == "year":
+        reverse = get_valid_yes_no_answer(
+            "Do you want to see the latest movies first? (yes/no): "
+        )
+
     sorted_movies = dict(
-        sorted(movies.items(), key=lambda item: item[1]["rating"], reverse=reverse)
+        sorted(movies.items(), key=lambda item: item[1][sort_by], reverse=reverse)
     )
 
     for movie in sorted_movies:
@@ -482,8 +500,10 @@ def execute_task(user_choice, movies):
     elif user_choice == 7:
         search_movie(movies)
     elif user_choice == 8:
-        sort_movies_by_rating(movies)
+        sort_movies(movies, "rating")
     elif user_choice == 9:
+        sort_movies(movies, "year")
+    elif user_choice == 10:
         create_rating_histogram(movies)
 
     print()
