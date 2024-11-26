@@ -10,7 +10,7 @@ from difflib import get_close_matches
 import matplotlib
 import matplotlib.pyplot as plt
 
-import movies_storage
+import movie_storage
 
 # Use the Agg backend for rendering to a file
 matplotlib.use('Agg')
@@ -246,7 +246,7 @@ def add_movie() -> tuple[str, dict]:
     user_year = get_valid_year()
     user_rating = get_valid_rating()
 
-    movies_storage.add_movie(user_movie, user_year, user_rating)
+    movie_storage.add_movie(user_movie, user_year, user_rating)
     print(f"Movie {user_movie} successfully added")
 
     user_movie_data = {
@@ -303,7 +303,7 @@ def delete_movie(movies: dict) -> str:
     """
     deleted_movie = get_existing_movie("Enter movie name to delete: ", movies)
 
-    movies_storage.delete_movie(deleted_movie)
+    movie_storage.delete_movie(deleted_movie)
     print("Movie successfully deleted")
 
     return deleted_movie
@@ -323,7 +323,7 @@ def update_movie(movies: dict) -> tuple[str, float]:
     updated_movie = get_existing_movie("Enter updated movie name: ", movies)
     updated_rating = get_valid_rating()
 
-    movies_storage.update_movie(updated_movie, updated_rating)
+    movie_storage.update_movie(updated_movie, updated_rating)
     print(f"Movie {updated_movie} successfully updated")
 
     return updated_movie, updated_rating
@@ -601,7 +601,7 @@ def wait_for_user_action():
 
 def main():
     """Main function to run the program."""
-    movies = movies_storage.get_movies()
+    movies = movie_storage.get_movies()
 
     print("********** My Movies Database **********")
 
