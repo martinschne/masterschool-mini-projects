@@ -243,9 +243,14 @@ def add_movie() -> tuple[str, dict]:
             user_movie (str) and user_movie_data (dict) as a tuple.
     """
     user_movie = get_valid_movie()
+
+    is_movie_in_storage = movie_storage.is_movie_in_storage(user_movie)
+    if is_movie_in_storage:
+        print_error("Movie is already in the storage.")
+        add_movie()
+
     user_year = get_valid_year()
     user_rating = get_valid_rating()
-
     movie_storage.add_movie(user_movie, user_year, user_rating)
     print(f"Movie {user_movie} successfully added")
 

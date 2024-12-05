@@ -77,3 +77,10 @@ def update_movie(title, rating):
     movies[title]["rating"] = rating
 
     save_movies(movies)
+
+
+def is_movie_in_storage(title):
+    movies = get_movies()
+    movies_keys = map(str.lower, list(movies.keys()))
+    return title.lower() in movies_keys
+
