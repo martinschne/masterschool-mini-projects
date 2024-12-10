@@ -10,5 +10,5 @@ Desktop layout:
 
 <img alt="login-page-desktop-view" src="https://github.com/user-attachments/assets/b00eeead-0fa2-4a20-954e-2669582571da" width="500"/>
 
-
+<br>  
 What a pleasant work! 🤓
