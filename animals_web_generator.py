@@ -37,14 +37,16 @@ def main():
     :return: None
     """
     animals_data = load_json("animals_data.json")
-    output = ""
+    output = "" # define an empty string
 
     for animal in animals_data:
-        output += f"Name: {animal["name"]}\n" if "name" in animal else ""
-        output += f"Diet: {animal["characteristics"]["diet"]}\n" if "diet" in animal["characteristics"] else ""
-        output += f"Location: {animal["locations"][0]}\n" if "locations" in animal else ''
-        output += f"Type: {animal["characteristics"]["type"]}\n" if "type" in animal["characteristics"] else ""
-        output += '\n'
+        # serializing to html format
+        output += "<li class='cards__item'>"
+        output += f"Name: {animal["name"]}<br>\n" if "name" in animal else ""
+        output += f"Diet: {animal["characteristics"]["diet"]}<br>\n" if "diet" in animal["characteristics"] else ""
+        output += f"Location: {animal["locations"][0]}<br>\n" if "locations" in animal else ''
+        output += f"Type: {animal["characteristics"]["type"]}<br>" if "type" in animal["characteristics"] else ""
+        output += "</li>"
 
     animals_template_site = load_file("animals_template.html")
     animals_template_site = animals_template_site.replace("__REPLACE_ANIMALS_INFO__", output)
