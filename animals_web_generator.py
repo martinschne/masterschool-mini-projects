@@ -1,9 +1,9 @@
 import json
 
 
-def load_data(file_path: str) -> list[dict]:
+def load_json(file_path: str) -> list[dict]:
     """
-    Loads JSON file
+    Loads a JSON file as a readable
     :param file_path: relative path to the JSON file
     :return: JSON object
     """
@@ -11,34 +11,24 @@ def load_data(file_path: str) -> list[dict]:
         return json.load(handle)
 
 
-def get_prop_value(animal: list[dict], prop_description: str, keys: list[str]) -> tuple[str | None, any]:
+def load_file(file_path: str) -> str:
     """
-    Get property value nested in 'animal' under keys accessors
-    :param animal: source of lookup
-    :param prop_description: property description
-    :param keys: list of ordered access keys for lookup
-    :return: tuple (prop_description, value) or
-    (None, None) if value was not found under keys
+    Load a file and return it as a string
+    :param file_path: relative path to the file
+    :return: content of the file as a string
     """
-    current_value = animal
-    for key in keys:
-        current_value = current_value.get(key, {})
-
-    if current_value != {}:
-        return prop_description, current_value
-    return None, None
+    with open(file_path, 'r') as file:
+        return file.read()
 
 
-def print_prop_value(prop_description: str, value):
+def write_to_file(file_path: str, content: str):
     """
-    Print property description and given value in set format
-    'prop_description: value'
-    :param prop_description: description of the property value
-    :param value: any value provided
-    :return None
+    Write content to the file
+    :param file_path: relative path to the file
+    :param content: content to write to the file
     """
-    if prop_description is not None:
-        print(f"{prop_description}: {value}")
+    with open(file_path, 'w') as file:
+        file.write(content)
 
 
 def main():
@@ -46,17 +36,19 @@ def main():
     Main method to run the program
     :return: None
     """
-    animals_data = load_data("animals_data.json")
+    animals_data = load_json("animals_data.json")
+    output = ""
 
     for animal in animals_data:
-        print_prop_value(*get_prop_value(animal, "Name", ["name"]))
-        print_prop_value(*get_prop_value(animal, "Diet", ["characteristics", "diet"]))
+        output += f"Name: {animal["name"]}\n" if "name" in animal else ""
+        output += f"Diet: {animal["characteristics"]["diet"]}\n" if "diet" in animal["characteristics"] else ""
+        output += f"Location: {animal["locations"][0]}\n" if "locations" in animal else ''
+        output += f"Type: {animal["characteristics"]["type"]}\n" if "type" in animal["characteristics"] else ""
+        output += '\n'
 
-        (prop_name, value) = get_prop_value(animal, "Location", ["locations"])
-        print_prop_value(prop_name, value[0])
-
-        print_prop_value(*get_prop_value(animal, "Type", ["characteristics", "type"]))
-        print()
+    animals_template_site = load_file("animals_template.html")
+    animals_template_site = animals_template_site.replace("__REPLACE_ANIMALS_INFO__", output)
+    write_to_file("animals.html", animals_template_site)
 
 
 if __name__ == "__main__":
