@@ -1,20 +1,9 @@
-import json
 import data_fetcher
 
 TEMPLATE_HTML_FILENAME = "animals_template.html"
 GENERATED_HTML_FILENAME = "animals.html"
 
 ANIMALS_LIST_PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
-
-
-def load_json(file_path: str) -> list[dict]:
-    """
-    Loads a JSON file as a readable
-    :param file_path: relative path to the JSON file
-    :return: JSON object
-    """
-    with open(file_path, 'r') as handle:
-        return json.load(handle)
 
 
 def load_file(file_path: str) -> str:
@@ -47,7 +36,9 @@ def serialize_animal(animal_obj: dict, key: str, value: str) -> str:
     """
     output = ""
     # return pre
-    if key in animal_obj["characteristics"] and animal_obj["characteristics"][key].lower() != value.lower():
+    if key not in animal_obj["characteristics"] or \
+            key in animal_obj["characteristics"] and \
+            animal_obj["characteristics"][key].lower() != value.lower():
         return ""
 
     # serializing to html format
@@ -66,7 +57,8 @@ def serialize_animal(animal_obj: dict, key: str, value: str) -> str:
                f"{animal_obj["characteristics"]["type"].capitalize()}</li>\n") \
         if "type" in animal_obj["characteristics"] else ""
 
-    output += f"                       <li><strong>Family:</strong> {animal_obj["taxonomy"]["family"]}</li>\n"
+    output += f"                       <li><strong>Family:</strong> {animal_obj["taxonomy"]["family"]}</li>\n" \
+        if "family" in animal_obj["taxonomy"] else ""
     output += (f"                       <li><strong>Skin type:</strong> "
                f"{animal_obj["characteristics"]["skin_type"]}</li>\n") \
         if "skin_type" in animal_obj["characteristics"] else ""
@@ -94,13 +86,15 @@ def get_characteristic_values(animals_data: list[dict], key: str) -> list[str]:
 
 
 def main():
-    """
-    Main method to run the program
-    :return: None
-    """
+    """ Main method to run the program """
+    while True:
+        animal_name = input("Please enter an animal: ")
+        try:
+            animals_data = data_fetcher.fetch_data(animal_name)
+            break
+        except Exception as e:
+            print("Error occurred, please try again.\n", e)
 
-    animal_name = input("Please enter an animal: ")
-    animals_data = data_fetcher.fetch_data(animal_name)
     filter_by = "skin_type"
 
     print("Filter animals by skin type: ")
