@@ -95,37 +95,41 @@ def main():
         except Exception as e:
             print("Error occurred, please try again.\n", e)
 
-    filter_by = "skin_type"
+    animals_template: str = load_file(TEMPLATE_HTML_FILENAME)
 
-    print("Filter animals by skin type: ")
-    selecting = True
-    values = get_characteristic_values(animals_data, filter_by)
-    while selecting:
-        for value in values:
-            print(value)
+    animals_list_output = ""
+    if len(animals_data) < 1:
+        animals_list_output += (f"<li><h2 id='error'><strong><span>&#10060;</span> The animal <i>'{animal_name}'</i> "
+                                f"doesn't exist.</h2></li>")
+        print(f"Error: The animal {animal_name} doesn't exists.")
+    else:
+        filter_by = "skin_type"
+        print("Filter animals by skin type: ")
+        values = get_characteristic_values(animals_data, filter_by)
 
-        selected_skin_type = input("Please enter the skin type: ")
-        if selected_skin_type.lower() not in [prop.lower() for prop in values]:
-            print("Invalid choice, please try again.")
-            continue
+        while True:
+            for value in values:
+                print(value)
 
-        animals_template: str = load_file(TEMPLATE_HTML_FILENAME)
+            selected_skin_type = input("Please enter the skin type: ")
+            if selected_skin_type.lower() not in [prop.lower() for prop in values]:
+                print("Invalid choice, please try again.")
+                continue
 
-        # Load properties of animals, generate animals list
-        animals_list_output = ""
-        for animal in animals_data:
-            animals_list_output += serialize_animal(animal, filter_by, selected_skin_type)
+            # Load properties of animals, generate animals list
+            for animal in animals_data:
+                animals_list_output += serialize_animal(animal, filter_by, selected_skin_type)
 
-        # remove the first spaces and last newline after serializing all items
-        animals_list_output = animals_list_output[12:-1]
+            # remove the first spaces and last newline after serializing all items
+            animals_list_output = animals_list_output[12:-1]
 
-        # Generate animal list and insert into template
-        print(f"Generating page for animals with '{selected_skin_type.lower()}' skin type...")
-        animals_template = animals_template.replace(ANIMALS_LIST_PLACEHOLDER, animals_list_output)
-        write_to_file(GENERATED_HTML_FILENAME, animals_template)
-        print("Done")
+            print(f"Generating page for animals with '{selected_skin_type.lower()}' skin type...")
+            break
 
-        selecting = False
+    # Generate animal list or error message and insert it into template
+    animals_template = animals_template.replace(ANIMALS_LIST_PLACEHOLDER, animals_list_output)
+    write_to_file(GENERATED_HTML_FILENAME, animals_template)
+    print("Done")
 
 
 if __name__ == "__main__":
