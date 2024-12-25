@@ -99,7 +99,7 @@ def main():
 
     animals_list_output = ""
     if len(animals_data) < 1:
-        animals_list_output += (f"<li><h2 id='error'><strong><span>&#10060;</span> The animal <i>'{animal_name}'</i> "
+        animals_list_output += (f"<li><h2 id='error'><span>&#10060;</span> The animal <i>'{animal_name}'</i> "
                                 f"doesn't exist.</h2></li>")
         print(f"Error: The animal {animal_name} doesn't exists.")
     else:
