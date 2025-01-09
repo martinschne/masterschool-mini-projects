@@ -19,5 +19,7 @@ class Store:
         for product, quantity in shopping_list:
             if product in self.products:
                 total += product.buy(quantity)
+                if not product.is_active():
+                    self.remove_product(product)
 
         return total

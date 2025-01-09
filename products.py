@@ -16,9 +16,12 @@ class Product:
         return self.quantity
 
     def set_quantity(self, quantity):
+        if quantity > 0:
+            self.activate()
+        else:
+            self.deactivate()
+
         self.quantity = quantity
-        if self.quantity == 0:
-            self.active = False
 
     def is_active(self) -> bool:
         return self.active
@@ -33,8 +36,10 @@ class Product:
         return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
 
     def buy(self, quantity) -> float:
-        if quantity > self.quantity:
+        product_quantity = self.get_quantity()
+        if quantity > product_quantity:
             raise ValueError("Requested quantity exceeds the stock")
 
-        self.quantity -= quantity
+        self.set_quantity(product_quantity - quantity)
+
         return quantity * self.price
