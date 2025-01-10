@@ -60,8 +60,9 @@ def make_order(store: Store):
     if len(shopping_list) > 0:
         try:
             total_order = store.order(shopping_list)
-            print("********")
-            print(f"Order made! Total payment: ${total_order}")
+            if total_order != 0:
+                print("********")
+                print(f"Order made! Total payment: ${total_order}")
         except ValueError:
             print("Error while making order! Quantity larger than what exists")
 
