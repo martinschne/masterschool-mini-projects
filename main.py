@@ -73,7 +73,7 @@ def start(store: Store):
         lambda: print_store_products(store),
         lambda: print_store_items_amount(store),
         lambda: make_order(store),
-        lambda: sys.exit()
+        sys.exit
     ]
 
     while True:
