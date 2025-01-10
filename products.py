@@ -21,7 +21,7 @@ class Product:
         self.name = name
         self.price = price
         self.quantity = quantity
-        self.active = True
+        self.active = quantity > 0
 
     def get_quantity(self) -> int:
         """
