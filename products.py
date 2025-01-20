@@ -34,7 +34,6 @@ class Product:
         """
         Set the quantity of the product in stock and updates its active status.
         :param quantity: (int) The new quantity of the product.
-        :raises ValueError: If the quantity is negative.
         """
         if quantity > 0:
             self.activate()
