@@ -62,7 +62,7 @@ class Product:
         Returns a string representation of the product.
         :returns A string containing the product's name, price, and quantity.
         """
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
+        return f"{self.name}, Price: ${self.price}, Quantity: {self.quantity}"
 
     def buy(self, quantity: int) -> float:
         """
@@ -73,8 +73,69 @@ class Product:
         """
         product_quantity = self.get_quantity()
         if quantity > product_quantity:
-            raise ValueError("Requested quantity exceeds the stock")
+            raise ValueError("Error while making order! Quantity larger than what exists")
 
         self.set_quantity(product_quantity - quantity)
 
         return quantity * self.price
+
+
+class NonStockedProduct(Product):
+    def __init__(self, name: str, price: float):
+        """
+        Initializes a NonStockedProduct instance with the given name and price.
+        :param name: (str) The name of the product. Must not be empty.
+        :param price: (float) The price of the product. Must be non-negative.
+        :raises ValueError: If name is empty, price is negative, or quantity is negative.
+        Quantity of the product stays allways 0 and the product is activated on creation.
+        """
+        super().__init__(name, price, 0)
+        super().activate()
+
+    def set_quantity(self, quantity: int):
+        """ Prints warning when user calls this method on non-material product """
+        print("Warning: non stocked product does not have a quantity.")
+
+    def show(self) -> str:
+        """
+        Returns a string representation of the non-stocked product.
+        :returns A string containing the product's name, price and quantity.
+        Overrides standard Product method
+        """
+        return f"{self.name}, Price: ${self.price}, Quantity: Unlimited"
+
+    def buy(self, quantity: int) -> float:
+        """
+        Returns price of the non-stocked product.
+        Overrides standard Product method
+        """
+        return quantity * self.price
+
+
+class LimitedProduct(Product):
+    def __init__(self, name: str, price: float, quantity: int, maximum: int):
+        """
+        Initializes a LimitedProduct instance with the given name, price, quantity and maximum.
+        :param name: (str) The name of the product. Must not be empty.
+        :param price: (float) The price of the product. Must be non-negative.
+        :param quantity: (int) The quantity of the product in stock. Must be non-negative.
+        :param maximum: (int) Maximum quantity allowed in one order for this product
+        :raises ValueError: If name is empty, price is negative, or quantity is negative.
+        """
+        super().__init__(name, price, quantity)
+        self._maximum = maximum
+
+    def show(self) -> str:
+        """
+        Returns a string representation of the limited product.
+        :returns A string containing the product's name, price and quantity.
+        Overrides standard Product method
+        """
+        return f"{self.name}, Price: ${self.price}, Limited to 1 per order!"
+
+    def buy(self, quantity: int) -> float:
+        if quantity > self._maximum:
+            raise ValueError(
+                f"Error while making order! Only {self._maximum} is allowed from this product1!"
+            )
+        return super().buy(quantity)

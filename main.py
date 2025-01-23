@@ -1,6 +1,6 @@
 import sys
 
-from products import Product
+from products import Product, NonStockedProduct, LimitedProduct
 from store import Store
 
 
@@ -63,8 +63,8 @@ def make_order(store: Store):
             if total_order != 0:
                 print("********")
                 print(f"Order made! Total payment: ${total_order}")
-        except ValueError:
-            print("Error while making order! Quantity larger than what exists")
+        except ValueError as e:
+            print(e)
 
 
 def start(store: Store):
@@ -109,9 +109,10 @@ def main():
     product_list = [
         Product("MacBook Air M2", price=1450, quantity=100),
         Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-        Product("Google Pixel 7", price=500, quantity=250)
+        Product("Google Pixel 7", price=500, quantity=250),
+        NonStockedProduct("Windows License", price=125),
+        LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
     ]
-
     best_buy = Store(product_list)
     start(best_buy)
 
