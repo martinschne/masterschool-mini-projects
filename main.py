@@ -1,13 +1,14 @@
 import sys
 
 from products import Product, NonStockedProduct, LimitedProduct
+from promotions import SecondHalfPrice, ThirdOneFree, PercentDiscount
 from store import Store
 
 
 def print_store_products(store: Store):
     """
     Prints numbered list of all products in the store with their details.
-    :param store: Store object exposing its products for displaying.
+    @param store: (Store) object exposing its products for displaying.
     """
     print("------")
     for index, product in enumerate(store.get_all_products()):
@@ -18,7 +19,7 @@ def print_store_products(store: Store):
 def print_store_items_amount(store: Store):
     """
     Prints total quantity of all items assigned on store instance.
-    :param store: Store object exposing its products for item counting.
+    @param store: (Store) object exposing its products for item counting.
     """
     print(f"Total of {store.get_total_quantity()} items in store")
 
@@ -32,7 +33,7 @@ def make_order(store: Store):
     Upon receiving empty product index or quantity input from user
     finalizes the order creation with displaying total payment for
     the order.
-    :param store: Store object exposing its methods for managing ordered products it contains.
+    @param store: (Store) object exposing its methods for managing ordered products it contains.
     """
     shopping_list = []
 
@@ -72,7 +73,7 @@ def start(store: Store):
     Provide terminal user interface to the user.
     Handles menu printing, item selection handles execution of corresponding
     helper function referenced in 'menu_options' list.
-    :param store: Store object for exposing store methods to helper functions
+    @param store: (Store) object for exposing store methods to helper functions.
     """
     menu_options = [
         lambda: print_store_products(store),
@@ -97,6 +98,8 @@ def start(store: Store):
                 menu_options[user_choice - 1]()
         except ValueError:
             print("Error with your choice! Try again!")
+        except KeyboardInterrupt:
+            return
 
         print()
 
@@ -113,6 +116,17 @@ def main():
         NonStockedProduct("Windows License", price=125),
         LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
     ]
+
+    # Create promotion catalog
+    second_half_price = SecondHalfPrice("Second Half price!")
+    third_one_free = ThirdOneFree("Third One Free!")
+    thirty_percent = PercentDiscount("30% off!", percent=30)
+
+    # Add promotions to products
+    product_list[0].set_promotion(second_half_price)
+    product_list[1].set_promotion(third_one_free)
+    product_list[3].set_promotion(thirty_percent)
+
     best_buy = Store(product_list)
     start(best_buy)
 

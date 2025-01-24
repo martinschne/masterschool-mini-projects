@@ -8,8 +8,8 @@ def test_creating_normal_product():
     product = Product("Test name", 9.99, 100)
     assert product.name == "Test name"
     assert product.price == 9.99
-    assert product.quantity == 100
-    assert product.active == True
+    assert product._quantity == 100
+    assert product._active == True
 
 
 def test_creating_product_with_invalid_parameters():
@@ -31,7 +31,7 @@ def test_product_inactive_on_quantity_zero():
     Also test that buying last item makes the product inactive.
     """
     product = Product("Test name", 9.99, 0)
-    assert product.active == False
+    assert product._active == False
 
     product_quantity_one = Product("Test name", 9.99, 1)
     assert product_quantity_one.is_active() == True
