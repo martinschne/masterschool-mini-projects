@@ -11,20 +11,31 @@ class Promotion(ABC):
         Instantiates the promotion with given name.
         @param name: (str) name of the promotion.
         """
+        Promotion._validate_name(name)
         self._name = name
 
-    def get_name(self) -> str:
+    @staticmethod
+    def _validate_name(name: str):
+        if not isinstance(name, str):
+            raise ValueError("Invalid promotion name set: name must be a string")
+        if name == "":
+            raise ValueError("Invalid promotion name set: name cannot be empty")
+
+    @property
+    def name(self) -> str:
         """
         Returns the name of the promotion.
         @return: (str) name of the promotion.
         """
         return self._name
 
-    def set_name(self, name: str):
+    @name.setter
+    def name(self, name: str):
         """
         Applies a new promotion on the product.
         @param name: (str) The new promotion applied on the product.
         """
+        Promotion._validate_name(name)
         self._name = name
 
     @abstractmethod

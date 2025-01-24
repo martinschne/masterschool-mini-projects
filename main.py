@@ -12,7 +12,7 @@ def print_store_products(store: Store):
     """
     print("------")
     for index, product in enumerate(store.get_all_products()):
-        print(f"{index + 1}. {product.show()}")
+        print(f"{index + 1}. {product}")
     print("------")
 
 
@@ -123,9 +123,9 @@ def main():
     thirty_percent = PercentDiscount("30% off!", percent=30)
 
     # Add promotions to products
-    product_list[0].set_promotion(second_half_price)
-    product_list[1].set_promotion(third_one_free)
-    product_list[3].set_promotion(thirty_percent)
+    product_list[0].promotion = second_half_price
+    product_list[1].promotion = third_one_free
+    product_list[3].promotion = thirty_percent
 
     best_buy = Store(product_list)
     start(best_buy)

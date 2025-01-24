@@ -6,39 +6,97 @@ class Product:
     Represents a product with a name, price, quantity in stock and promotion applied.
     """
 
-    def __init__(self, name: str, price: float, quantity: int):
+    def __init__(self, name: str, price: float | int, quantity: int):
         """
         Initializes a Product instance with the given name, price, and quantity and no promotion.
         @param name: (str) The name of the product. Must not be empty.
         @param price: (float) The price of the product. Must be non-negative.
         @param quantity: (int) The quantity of the product in stock. Must be non-negative.
-        @raise ValueError: If name is empty, price is negative, or quantity is negative.
+        @raise ValueError: If name is empty, price or quantity is negative.
         """
-        if name == "":
-            raise ValueError("Invalid name: name cannot be empty")
-        if price < 0:
-            raise ValueError(f"Invalid price: {price}, price can't be negative")
-        if quantity < 0:
-            raise ValueError(f"Invalid quantity: {quantity}, quantity can't be negative")
+        Product._validate_name(name)
+        self._name = name
 
-        self.name = name
-        self.price = price
+        Product._validate_price(price)
+        self._price = price
+
+        Product._validate_quantity(quantity)
         self._quantity = quantity
+
         self._active = quantity > 0
         self._promotion = None
 
-    def get_quantity(self) -> int:
+    @staticmethod
+    def _validate_name(name: str):
+        if not isinstance(name, str):
+            raise ValueError("Invalid product name set: name must be a string")
+        if name == "":
+            raise ValueError("Invalid product name set: name cannot be empty")
+
+    @staticmethod
+    def _validate_price(price: float | int):
+        if not isinstance(price, (float, int)):
+            raise ValueError("Invalid price set: price must be a float")
+        if price < 0:
+            raise ValueError(f"Invalid price '{price}' set: price cannot be negative")
+
+    @staticmethod
+    def _validate_quantity(quantity: int):
+        if not isinstance(quantity, int):
+            raise ValueError("Invalid quantity set: quantity must be an int")
+        if quantity < 0:
+            raise ValueError(f"Invalid quantity '{quantity}' set: quantity cannot be negative")
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the current name of the product.
+        @return: (float) The name of the product.
+        """
+        return self._name
+
+    @name.setter
+    def name(self, value: str):
+        """
+        Sets the name of the product.
+        @param value: (float) The new name of the product.
+        """
+        Product._validate_name(value)
+        self._name = value
+
+    @property
+    def price(self) -> float | int:
+        """
+        Returns the current price of the product in stock.
+        @return: (float) The price of the product.
+        """
+        return self._price
+
+    @price.setter
+    def price(self, value: float | int):
+        """
+        Sets the price of the product in stock.
+        @param value: (float) The new price of the product.
+        """
+        Product._validate_price(value)
+        self._price = value
+
+    @property
+    def quantity(self) -> int:
         """
         Returns the current quantity of the product in stock.
         @return: (int) The quantity of the product.
         """
         return self._quantity
 
-    def set_quantity(self, quantity: int):
+    @quantity.setter
+    def quantity(self, quantity: int):
         """
-        Set the quantity of the product in stock and updates its active status.
+        Sets the quantity of the product in stock and updates its active status.
         @param quantity: (int) The new quantity of the product.
         """
+        Product._validate_quantity(quantity)
+
         if quantity > 0:
             self.activate()
         else:
@@ -46,20 +104,22 @@ class Product:
 
         self._quantity = quantity
 
-    def get_promotion(self) -> Promotion:
+    @property
+    def promotion(self) -> Promotion:
         """
         Returns the current promotion applied on the product.
         @return: (int) The promotion applied on the product.
         """
         return self._promotion
 
-    def set_promotion(self, promotion: Promotion):
+    @promotion.setter
+    def promotion(self, promotion: Promotion):
         """
         Applies a new promotion on the product.
         @param promotion: (Promotion) The new promotion applied on the product.
         """
         if promotion is not None and not isinstance(promotion, Promotion):
-            raise ValueError("promotion must be an instance of Promotion or None")
+            raise ValueError("Invalid promotion set: promotion must be an instance of Promotion or None")
         self._promotion = promotion
 
     def _get_promotion_name(self) -> str:
@@ -68,7 +128,7 @@ class Product:
         If promotion was not applied on this product, it returns "None".
         @return: (str) promotion name or "None" if promotion was not set.
         """
-        return getattr(self.get_promotion(), 'get_name', lambda: "None")()
+        return getattr(self.promotion, 'name', "None")
 
     def is_active(self) -> bool:
         """
@@ -85,12 +145,66 @@ class Product:
         """Deactivates the product, setting its status to inactive."""
         self._active = False
 
-    def show(self) -> str:
+    def __str__(self) -> str:
         """
-        Returns a string representation of the product.
+        Allows printing a string representation of the product.
         @return: (str) Info containing the product's name, price, quantity and promotion applied.
         """
-        return f"{self.name}, Price: ${self.price}, Quantity: {self._quantity}, Promotion: {self._get_promotion_name()}"
+        return f"{self.name}, Price: ${self.price}, Quantity: {self.quantity}, Promotion: {self._get_promotion_name()}"
+
+    def __eq__(self, other):
+        """
+        Enables comparison operator == between this product and other product instances.
+        Compares prices of both products and returns the result as boolean.
+        @param other: (Product) other product for price comparison.
+        @return (bool) True if price of this product == price of other product, otherwise False.
+        """
+        return self.price == other.price
+
+    def __ne__(self, other):
+        """
+        Enables comparison operator != between this product and other product instances.
+        Compares prices of both products and returns the result as boolean.
+        @param other: (Product) other product for price comparison.
+        @return (bool) True if price of this product != price of other product, otherwise False.
+        """
+        return not self.__eq__(other)
+
+    def __gt__(self, other: "Product"):
+        """
+        Enables comparison operator > between this product and other product instances.
+        Compares prices of both products and returns the result as boolean.
+        @param other: (Product) other product for price comparison.
+        @return (bool) True if price of this product > price of other product, otherwise False.
+        """
+        return self.price > other.price
+
+    def __ge__(self, other):
+        """
+        Enables comparison operator >= between this product and other product instances.
+        Compares prices of both products and returns the result as boolean.
+        @param other: (Product) other product for price comparison.
+        @return (bool) True if price of this product >= price of other product, otherwise False.
+        """
+        return self.price >= other.price
+
+    def __lt__(self, other):
+        """
+        Enables comparison operator < between this product and other product instances.
+        Compares prices of both products and returns the result as boolean.
+        @param other: (Product) other product for price comparison.
+        @return (bool) True if price of this product < price of other product, otherwise False.
+        """
+        return self.price < other.price
+
+    def __le__(self, other):
+        """
+        Enables comparison operator <= between this product and other product instances.
+        Compares prices of both products and returns the result as boolean.
+        @param other: (Product) other product for price comparison.
+        @return (bool) True if price of this product <= price of other product, otherwise False.
+        """
+        return self.price <= other.price
 
     def buy(self, quantity: int) -> float:
         """
@@ -99,15 +213,14 @@ class Product:
         @return: (float) The total cost of the purchased quantity.
         @raise: ValueError: If the requested quantity exceeds the available stock.
         """
-        product_quantity = self.get_quantity()
+        product_quantity = self.quantity
         if quantity > product_quantity:
             raise ValueError("Error while making order! Quantity larger than what exists")
 
-        self.set_quantity(product_quantity - quantity)
+        self.quantity = product_quantity - quantity
 
-        promotion = self.get_promotion()
-        if promotion is not None:
-            return promotion.apply_promotion(self, quantity)
+        if self.promotion is not None:
+            return self.promotion.apply_promotion(self, quantity)
 
         return quantity * self.price
 
@@ -124,17 +237,10 @@ class NonStockedProduct(Product):
         super().__init__(name, price, 0)
         super().activate()
 
-    def set_quantity(self, quantity: int):
-        """ Prints warning when user calls this method on non-material product. """
-        print("Warning: non stocked product does not have a quantity.")
-
-    def show(self) -> str:
-        """
-        Returns a string representation of the non-stocked product.
-        @return: (str) Info containing the product's name, price, quantity and promotion applied.
-        Overrides standard Product method.
-        """
-        return f"{self.name}, Price: ${self.price}, Quantity: Unlimited, Promotion: {self._get_promotion_name()}"
+    @Product.quantity.setter
+    def quantity(self, quantity: int):
+        """Custom setter for quantity in the child class."""
+        print("Warning: Non-material product does not have a quantity.")
 
     def buy(self, quantity: int) -> float:
         """
@@ -142,11 +248,17 @@ class NonStockedProduct(Product):
         @return: (str) Info containing the product's name, price and quantity.
         Overrides standard Product method.
         """
-        promotion = self.get_promotion()
-        if promotion is not None:
-            return promotion.apply_promotion(self, quantity)
+        if self.promotion is not None:
+            return self.promotion.apply_promotion(self, quantity)
 
         return quantity * self.price
+
+    def __str__(self) -> str:
+        """
+        Allows printing a string representation of the non-stocked product.
+        @return: (str) Info containing the product's name, price, quantity () and promotion applied.
+        """
+        return f"{self.name}, Price: ${self.price}, Quantity: Unlimited, Promotion: {self._get_promotion_name()}"
 
 
 class LimitedProduct(Product):
@@ -162,9 +274,9 @@ class LimitedProduct(Product):
         super().__init__(name, price, quantity)
         self._maximum = maximum
 
-    def show(self) -> str:
+    def __str__(self) -> str:
         """
-        Returns a string representation of the limited product.
+        Allows printing a string representation of the limited product.
         @return: (str) Info containing the product's name, price, quantity and promotion applied.
         Overrides standard Product method.
         """

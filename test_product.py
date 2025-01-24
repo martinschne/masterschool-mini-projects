@@ -50,7 +50,7 @@ def test_buy_product():
     product = Product("Test name", 9.99, 100)
     total_buying_price = product.buy(10)
 
-    assert product.get_quantity() == 90
+    assert product.quantity == 90
     assert total_buying_price == 99.9
 
 
