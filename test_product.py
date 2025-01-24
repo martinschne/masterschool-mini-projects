@@ -4,7 +4,15 @@ from products import Product
 
 
 def test_creating_normal_product():
-    """ Tests instantiation of the Product class with valid parameters. """
+    """
+    Test the instantiation of the Product class with valid parameters.
+
+    Verifies that:
+    - The `name` attribute is set correctly.
+    - The `price` attribute is set correctly.
+    - The `_quantity` attribute is initialized as expected.
+    - The `_active` attribute is True by default.
+    """
     product = Product("Test name", 9.99, 100)
     assert product.name == "Test name"
     assert product.price == 9.99
@@ -14,10 +22,14 @@ def test_creating_normal_product():
 
 def test_creating_product_with_invalid_parameters():
     """
-    Tests instantiation of Product class with invalid parameters:
-    - empty name
-    - negative price
-    - negative quantity
+    Test the instantiation of the Product class with invalid parameters.
+
+    Cases covered:
+    - An empty name raises a ValueError.
+    - A negative price raises a ValueError.
+    - A negative quantity raises a ValueError.
+
+    :raises ValueError: If any invalid parameter is passed to the constructor.
     """
     with pytest.raises(ValueError):
         Product("", -10, 100)
@@ -27,8 +39,11 @@ def test_creating_product_with_invalid_parameters():
 
 def test_product_inactive_on_quantity_zero():
     """
-    Tests that newly created product with quantity set to 0 is inactive.
-    Also test that buying last item makes the product inactive.
+    Test that a product becomes inactive when its quantity is 0.
+
+    Verifies that:
+    - A product with an initial quantity of 0 is inactive.
+    - Buying the last item of a product sets it to inactive.
     """
     product = Product("Test name", 9.99, 0)
     assert product._active == False
@@ -44,8 +59,11 @@ def test_product_inactive_on_quantity_zero():
 
 def test_buy_product():
     """
-    Tests that buying product changes its stock quantity.
-    Verify that buying operation returns correct total price.
+    Test that buying a product updates its stock quantity and calculates the correct price.
+
+    Verifies that:
+    - The quantity decreases appropriately after a purchase.
+    - The total price is calculated accurately.
     """
     product = Product("Test name", 9.99, 100)
     total_buying_price = product.buy(10)
@@ -55,7 +73,11 @@ def test_buy_product():
 
 
 def test_buy_product_over_stock_quantity():
-    """ Tests that buying more than available quantity raises an exception. """
+    """
+    Test that attempting to buy more than the available stock raises an exception.
+
+    :raises ValueError: If the quantity to buy exceeds the available stock.
+    """
     product = Product("Test name", 9.99, 100)
     with pytest.raises(ValueError):
         product.buy(200)

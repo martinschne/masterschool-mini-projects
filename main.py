@@ -7,8 +7,10 @@ from store import Store
 
 def print_store_products(store: Store):
     """
-    Prints numbered list of all products in the store with their details.
-    @param store: (Store) object exposing its products for displaying.
+    Prints a numbered list of all products in the store with their details.
+
+    :param store: Store object exposing its products for displaying.
+    :type store: Store
     """
     print("------")
     for index, product in enumerate(store.get_all_products()):
@@ -18,22 +20,26 @@ def print_store_products(store: Store):
 
 def print_store_items_amount(store: Store):
     """
-    Prints total quantity of all items assigned on store instance.
-    @param store: (Store) object exposing its products for item counting.
+    Prints the total quantity of all items assigned to the store instance.
+
+    :param store: Store object exposing its products for item counting.
+    :type store: Store
     """
     print(f"Total of {store.get_total_quantity()} items in store")
 
 
 def make_order(store: Store):
     """
-    Navigates user through the order creation process:
-    Display the products available in store.
-    Repeatedly instructs the user to add new item consisting of
-    Product instance and ordered quantity to the shopping list.
-    Upon receiving empty product index or quantity input from user
-    finalizes the order creation with displaying total payment for
-    the order.
-    @param store: (Store) object exposing its methods for managing ordered products it contains.
+    Navigates the user through the order creation process.
+
+    Steps:
+    - Display the products available in the store.
+    - Repeatedly prompt the user to add a new item consisting of a
+      Product instance and ordered quantity to the shopping list.
+    - Finalize the order creation when the user provides empty input.
+
+    :param store: Store object exposing its methods for managing ordered products it contains.
+    :type store: Store
     """
     shopping_list = []
 
@@ -70,10 +76,13 @@ def make_order(store: Store):
 
 def start(store: Store):
     """
-    Provide terminal user interface to the user.
-    Handles menu printing, item selection handles execution of corresponding
-    helper function referenced in 'menu_options' list.
-    @param store: (Store) object for exposing store methods to helper functions.
+    Provides a terminal user interface to the user.
+
+    Handles menu printing, item selection, and execution of the corresponding
+    helper function referenced in the `menu_options` list.
+
+    :param store: Store object for exposing store methods to helper functions.
+    :type store: Store
     """
     menu_options = [
         lambda: print_store_products(store),
@@ -107,6 +116,8 @@ def start(store: Store):
 def main():
     """
     Main method to start the program.
+
+    Sets up the initial stock of inventory, promotions, and starts the store.
     """
     # setup initial stock of inventory
     product_list = [

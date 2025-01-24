@@ -8,19 +8,28 @@ if TYPE_CHECKING:
 
 class Promotion(ABC):
     """
-    Represents a base for creating promotions assigned to product instances.
+    Represents a base class for creating promotions assigned to product instances.
     """
 
     def __init__(self, name: str):
         """
-        Instantiates the promotion with given name.
-        @param name: (str) name of the promotion.
+        Initialize the promotion with the given name.
+
+        :param name: The name of the promotion.
+        :type name: str
         """
         Promotion._validate_name(name)
         self._name = name
 
     @staticmethod
     def _validate_name(name: str):
+        """
+        Validates the name of the promotion.
+
+        :param name: The name to validate.
+        :type name: str
+        :raises ValueError: If the name is not a string or is empty.
+        """
         if not isinstance(name, str):
             raise ValueError("Invalid promotion name set: name must be a string")
         if name == "":
@@ -29,66 +38,94 @@ class Promotion(ABC):
     @property
     def name(self) -> str:
         """
-        Returns the name of the promotion.
-        @return: (str) name of the promotion.
+        Get the name of the promotion.
+
+        :return: The name of the promotion.
+        :rtype: str
         """
         return self._name
 
     @name.setter
     def name(self, name: str):
         """
-        Applies a new promotion on the product.
-        @param name: (str) The new promotion applied on the product.
+        Set a new name for the promotion.
+
+        :param name: The new promotion name.
+        :type name: str
         """
         Promotion._validate_name(name)
         self._name = name
 
     @abstractmethod
     def apply_promotion(self, product: "Product", quantity: int) -> float:
+        """
+        Apply the promotion to a product for a specific quantity.
+
+        :param product: The product to apply the promotion on.
+        :type product: Product
+        :param quantity: The number of items.
+        :type quantity: int
+        :return: The final price after applying the promotion.
+        :rtype: float
+        """
         pass
 
 
 class SecondHalfPrice(Promotion):
     """
-    Promotion for products applying half price discount for every other item.
+    Promotion for products that applies a half-price discount for every other item.
     """
 
     def apply_promotion(self, product: "Product", quantity: int) -> float:
         """
-        Returns final price after applying half price discount for every other item.
-        @param product: (Product) product to apply the discount on.
-        @param quantity: (int) number of items bought.
-        @return: (float) final price after discount.
-        Provides specific implementation of abstract promotion method.
+        Calculate the final price after applying a half-price discount for every other item.
+
+        :param product: The product to apply the discount on.
+        :type product: Product
+        :param quantity: The number of items bought.
+        :type quantity: int
+        :return: The final price after the discount.
+        :rtype: float
         """
-        discount = (product.price / 2) * (quantity // 2)  # even items at half
+        discount = (product.price / 2) * (quantity // 2)
         return (product.price * quantity) - discount
 
 
 class ThirdOneFree(Promotion):
+    """
+    Promotion for products that applies a 100% discount for every third item.
+    """
+
     def apply_promotion(self, product: "Product", quantity: int) -> float:
         """
-        Returns final price after applying 100% discount for every third item.
-        @param product: (Product) product to apply the discount on.
-        @param quantity: (int) number of items bought.
-        @return: (float) final price after discount.
-        Provides specific implementation of abstract promotion method.
+        Calculate the final price after applying a 100% discount for every third item.
+
+        :param product: The product to apply the discount on.
+        :type product: Product
+        :param quantity: The number of items bought.
+        :type quantity: int
+        :return: The final price after the discount.
+        :rtype: float
         """
-        discount = product.price * (quantity // 3)  # all third items
+        discount = product.price * (quantity // 3)
         return (product.price * quantity) - discount
 
 
 class PercentDiscount(Promotion):
     """
-    Represents promotion for products applying percentual discount on all items.
-    Percentage is specified at instance creation as a private instance variable.
+    Promotion for products that applies a percentage discount to all items.
+    The discount percentage is specified during instance creation.
     """
 
     def __init__(self, name: str, percent: int):
         """
-        Initiate the PercentDiscount instance with given parameters.
-        @param name: (str) name of the promotion.
-        @param percent: (int) percentage discounted from price in range 1 - 100 % inclusive.
+        Initialize the PercentDiscount instance with a name and discount percentage.
+
+        :param name: The name of the promotion.
+        :type name: str
+        :param percent: The percentage discount to apply (1-100% inclusive).
+        :type percent: int
+        :raises ValueError: If the percentage is out of the range 1-100.
         """
         super().__init__(name)
         if 0 > percent > 100:
@@ -97,11 +134,14 @@ class PercentDiscount(Promotion):
 
     def apply_promotion(self, product: "Product", quantity: int) -> float:
         """
-        Returns final price after applying percentual discount on all items.
-        @param product: (Product) product to apply the discount on.
-        @param quantity: (int) number of items bought.
-        @return: (float) final price after discount.
-        Provides specific implementation of abstract promotion method.
+        Calculate the final price after applying a percentage discount to all items.
+
+        :param product: The product to apply the discount on.
+        :type product: Product
+        :param quantity: The number of items bought.
+        :type quantity: int
+        :return: The final price after the discount.
+        :rtype: float
         """
         discount = ((product.price / 100) * self.__percent)  # single product
         return (product.price - discount) * quantity
