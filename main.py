@@ -259,7 +259,6 @@ def add_movie() -> tuple[str, dict]:
         YEAR_KEY: user_year
     }
 
-
     return user_movie, user_movie_data
 
 
