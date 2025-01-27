@@ -1,12 +1,17 @@
+import json
+import os
 import random
 import re
 import statistics
 import sys
 from difflib import get_close_matches
+from urllib.parse import urlencode, urljoin
 
 # pylint: disable=import-error
 import matplotlib
 import matplotlib.pyplot as plt
+import requests
+from dotenv import load_dotenv
 
 from storage import IStorage
 from utils import get_valid_movie, get_valid_year, get_valid_rating, get_colored_input, \
@@ -15,10 +20,15 @@ from utils import get_valid_movie, get_valid_year, get_valid_rating, get_colored
 # Use the Agg backend for rendering to a file
 matplotlib.use('Agg')
 
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
 
 class CommandHandler:
+
     RATING_KEY = "rating"
     YEAR_KEY = "year"
+    POSTER_KEY = "poster"
 
     def __init__(self, storage: IStorage):
         """
@@ -51,12 +61,14 @@ class CommandHandler:
         for movie in movies:
             self._print_movie(movies, movie)
 
-    def _command_add_movie(self) -> tuple[str, dict]:
+    def _command_add_movie(self) -> tuple[str | None, dict | None]:
         """
             Saves new movie with its properties to 'movies.json' file.
     
             Returns:
-                user_movie (str) and user_movie_data (dict) as a tuple.
+                user_movie (str) and user_movie_data (dict) as a tuple
+                if movie was successfully found and fetched from omdb api
+                otherwise user_movie_data will be None.
         """
         user_movie = get_valid_movie()
 
@@ -65,17 +77,33 @@ class CommandHandler:
             print_error("Movie is already in the storage.")
             self._command_add_movie()
 
-        user_year = get_valid_year()
-        user_rating = get_valid_rating()
-        self._storage.add_movie(user_movie, user_year, user_rating)
-        print(f"Movie {user_movie} successfully added")
+        base_url = "https://www.omdbapi.com/"
+        params = {"apikey": API_KEY, "t": user_movie, "type": "movie"}
+        response = requests.get(url=urljoin(base_url, "?" + urlencode(params)))
 
-        user_movie_data = {
-            CommandHandler.RATING_KEY: user_rating,
-            CommandHandler.YEAR_KEY: user_year
-        }
+        if response.status_code == 200:
+            # response ok
+            print("response.text")
+            movie_found = json.loads(response.text)
+            title = movie_found["Title"]
+            year = int(movie_found["Year"])
+            rating = float(movie_found["imdbRating"])
+            poster = movie_found["Poster"]
 
-        return user_movie, user_movie_data
+            self._storage.add_movie(title, year, rating, poster)
+            print(f"Movie {title} successfully added")
+
+            movie_data = {
+                CommandHandler.YEAR_KEY: year,
+                CommandHandler.RATING_KEY: rating,
+                CommandHandler.POSTER_KEY: poster
+            }
+
+            return title, movie_data
+        else:
+            # api error
+            return None, None
+
 
     def _get_existing_movie(self, message: str, movies: dict) -> str:
         """
@@ -353,7 +381,8 @@ class CommandHandler:
             self._command_print_movies(movies)
         elif user_choice == 2:
             new_movie, new_movie_data = self._command_add_movie()
-            movies[new_movie] = new_movie_data
+            if new_movie_data is not None:
+                movies[new_movie] = new_movie_data
         elif user_choice == 3:
             movies.pop(self._command_delete_movie(movies), None)
         elif user_choice == 4:

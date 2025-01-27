@@ -14,7 +14,7 @@ class StorageFile(IStorage):
     def list_movies(self):
         raise NotImplementedError("Subclasses must implement 'list_movies'.")
 
-    def add_movie(self, title: str, year: int, rating: float):
+    def add_movie(self, title: str, year: int, rating: float, poster: str):
         """
         Add a new movie to the database.
 
@@ -31,7 +31,8 @@ class StorageFile(IStorage):
         movies = self.list_movies()
         movies[title] = {
             "rating": rating,
-            "year": year
+            "year": year,
+            "poster": poster
         }
 
         self._save_movies(movies)
