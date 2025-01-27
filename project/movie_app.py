@@ -1,6 +1,6 @@
-from .command_handler import CommandHandler
 from storage import IStorage
 from utils import COLORS, get_colored_input, wait_for_user_action, print_error, reset_output_color
+from project import CommandHandler
 
 
 class MovieApp:

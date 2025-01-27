@@ -5,8 +5,6 @@ class IStorage(ABC):
     """
     Representing interface for persistent storage implementations
     """
-    # directory for saved files
-    data_dir = "data"
 
     @abstractmethod
     def list_movies(self):

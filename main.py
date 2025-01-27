@@ -4,7 +4,7 @@ from storage import StorageJson
 
 def main():
     """Main function to run the program."""
-    storage = StorageJson('test.json')
+    storage = StorageJson("movies.json")
     movie_app = MovieApp(storage)
     movie_app.run()
 

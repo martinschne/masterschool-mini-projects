@@ -1,24 +1,24 @@
-import json
+import csv
 import os
 
 from .storage_file import StorageFile
 
-print(f"Running {__file__} as {'__main__' if __name__ == '__main__' else 'imported module'}.")
 
-
-class StorageJson(StorageFile):
+class StorageCsv(StorageFile):
     """
-    Persistent storage for accessing and saving data in JSON format.
+    Persistent storage for accessing and saving data in CSV format.
 
-    This class provides methods to interact with a JSON file, enabling
+    This class provides methods to interact with a CSV file, enabling
     reading, writing, and maintaining a database of movies.
     """
 
+    fieldnames = ["title", "rating", "year"]
+
     def __init__(self, file_path: str):
         """
-        Initialize the StorageJson object with a specified file path.
+        Initialize the StorageCsv object with a specified file path.
 
-        This method sets up the storage file path, creates a new JSON file
+        This method sets up the storage file path, creates a new CSV file
         if it doesn't already exist, and ensures that the directory for
         storing data is valid.
 
@@ -31,18 +31,18 @@ class StorageJson(StorageFile):
 
         Side Effects:
             - Creates a new JSON file at the specified path if it does not
-              exist.
+             exist.
             - Prints a message indicating whether the file was created or
-              an error occurred.
+             an error occurred.
         """
         current_dir = os.getcwd()
         self._file_path = os.path.join(current_dir, StorageFile.data_dir, file_path)
         if not os.path.exists(self._file_path):
             try:
                 self._save_movies({})
-                print(f"New json file was created at path: '{self._file_path}'.")
+                print(f"New csv file was created at path: '{self._file_path}'.")
             except OSError:
-                print(f"Error: creating json file at path: '{self._file_path}' failed.")
+                print(f"Error: creating csv file at path: '{self._file_path}' failed.")
 
     def _save_movies(self, movies: dict):
         """
@@ -66,17 +66,23 @@ class StorageJson(StorageFile):
             }
 
         Raises:
-            IOError: If saving to the JSON file fails due to file system
+            IOError: If saving to the CSV file fails due to file system
             issues.
         """
-        with open(self._file_path, 'w') as json_file_obj:
-            json_file_obj.write(json.dumps(movies))
+        with open(self._file_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, StorageCsv.fieldnames)
+            writer.writeheader()
+            for movie in movies:
+                title = movie
+                rating = movies[movie]["rating"]
+                year = movies[movie]["year"]
+                writer.writerow({"title": title, "rating": rating, "year": year})
 
     def list_movies(self):
         """
         Retrieve all movies from the database.
 
-        This method loads movie information from the JSON file and returns
+        This method loads movie information from the CSV file and returns
         it as a dictionary of dictionaries, where each movie title is a key
         and its associated details (e.g., rating, year) are stored in a
         nested dictionary.
@@ -94,7 +100,14 @@ class StorageJson(StorageFile):
                 }
             }
         """
-        with open(self._file_path, 'r') as json_file_obj:
-            movies = json.loads(json_file_obj.read())
+        movies = {}
+        with open(self._file_path, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                # save the record to movies in desired format
+                movies[row["title"]] = {
+                    "rating": float(row["rating"]),
+                    "year": int(row["year"])
+                }
 
         return movies
