@@ -15,14 +15,14 @@ class IStorage(ABC):
         pass
 
     @abstractmethod
-    def add_movie(self, title, year, rating):
+    def add_movie(self, title: str, year: int, rating: float, poster: str):
         """
         Gets all your movies as an argument and saves them to the file.
         """
         pass
 
     @abstractmethod
-    def delete_movie(self, title):
+    def delete_movie(self, title: str):
         """
         Adds a movie to the movie database.
         Loads the information from the file, adds the movie,
@@ -31,7 +31,7 @@ class IStorage(ABC):
         pass
 
     @abstractmethod
-    def update_movie(self, title, rating):
+    def update_movie(self, title: str, rating: float):
         """
         Deletes a movie from the movie database.
         Loads the information from the JSON file, deletes the movie,
@@ -40,7 +40,7 @@ class IStorage(ABC):
         pass
 
     @abstractmethod
-    def is_movie_in_storage(self, user_movie):
+    def is_movie_in_storage(self, title: str):
         """
         Returns True if movie was found in the storage, otherwise False.
         """

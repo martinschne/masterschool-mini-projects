@@ -14,8 +14,16 @@ import requests
 from dotenv import load_dotenv
 
 from storage import IStorage
-from utils import get_valid_movie, get_valid_year, get_valid_rating, get_colored_input, \
-    get_valid_yes_no_answer, get_normalized_input, print_error
+from utils import (
+    get_title_from_user,
+    get_year_from_user,
+    get_rating_from_user,
+    get_colored_input,
+    get_answer_from_user,
+    get_normalized_input,
+    print_error,
+    convert_to_number
+)
 
 # Use the Agg backend for rendering to a file
 matplotlib.use('Agg')
@@ -47,8 +55,13 @@ class CommandHandler:
             movie_name (str): name of the movie
             movies (dict): lookup source
         """
-        movie = movies[movie_name]
-        print(f"{movie_name} ({movie['year']}): {movie['rating']}")
+        movie_data = movies[movie_name]
+        year = movie_data["year"]
+        rating = movie_data["rating"]
+        movie_year = "N/A" if year is None else year
+        movie_rating = "N/A" if rating is None else rating
+
+        print(f"{movie_name} ({movie_year}): {movie_rating}")
 
     def _command_print_movies(self, movies: dict):
         """
@@ -61,6 +74,43 @@ class CommandHandler:
         for movie in movies:
             self._print_movie(movies, movie)
 
+    def _load_movie(self, title: str) -> tuple[str | None, dict | None]:
+        found_movie_title, found_movie_data = None, None
+
+        base_url = "https://www.omdbapi.com/"
+        params = {"apikey": API_KEY, "t": title, "type": "movie"}
+
+        try:
+            response = requests.get(url=urljoin(base_url, "?" + urlencode(params)))
+        except ConnectionError:
+            print("Error connecting to the omdb server, please try again later.")
+            return None, None
+
+        response_obj = json.loads(response.text)
+
+        if response.status_code == 200:
+            movie_was_found = eval(response_obj["Response"])
+
+            if movie_was_found:
+                new_title = response_obj["Title"]
+                new_year = convert_to_number(response_obj["Year"], int)
+                new_rating = convert_to_number(response_obj["imdbRating"], float)
+                new_poster = response_obj["Poster"]
+
+                new_movie_data = {
+                    CommandHandler.YEAR_KEY: new_year,
+                    CommandHandler.RATING_KEY: new_rating,
+                    CommandHandler.POSTER_KEY: new_poster
+                }
+
+                found_movie_title, found_movie_data = new_title, new_movie_data
+            else:
+                print(response_obj["Error"])
+        else:
+            print("Error accessing movie data, please try again later.")
+
+        return found_movie_title, found_movie_data
+
     def _command_add_movie(self) -> tuple[str | None, dict | None]:
         """
             Saves new movie with its properties to 'movies.json' file.
@@ -70,40 +120,23 @@ class CommandHandler:
                 if movie was successfully found and fetched from omdb api
                 otherwise user_movie_data will be None.
         """
-        user_movie = get_valid_movie()
+        title_from_user = get_title_from_user()
+        found_movie_title, found_movie_data = self._load_movie(title_from_user)
 
-        is_movie_in_storage = self._storage.is_movie_in_storage(user_movie)
-        if is_movie_in_storage:
-            print_error("Movie is already in the storage.")
-            self._command_add_movie()
+        if found_movie_title is not None:
+            if self._storage.is_movie_in_storage(found_movie_title):
+                print_error("Movie is already in the storage.")
+                return None, None
 
-        base_url = "https://www.omdbapi.com/"
-        params = {"apikey": API_KEY, "t": user_movie, "type": "movie"}
-        response = requests.get(url=urljoin(base_url, "?" + urlencode(params)))
+            # save the movie
+            year = found_movie_data[CommandHandler.YEAR_KEY]
+            rating = found_movie_data[CommandHandler.RATING_KEY]
+            poster = found_movie_data[CommandHandler.POSTER_KEY]
 
-        if response.status_code == 200:
-            # response ok
-            print("response.text")
-            movie_found = json.loads(response.text)
-            title = movie_found["Title"]
-            year = int(movie_found["Year"])
-            rating = float(movie_found["imdbRating"])
-            poster = movie_found["Poster"]
+            self._storage.add_movie(found_movie_title, year, rating, poster)
+            print(f"Movie '{found_movie_title}' was successfully added.")
 
-            self._storage.add_movie(title, year, rating, poster)
-            print(f"Movie {title} successfully added")
-
-            movie_data = {
-                CommandHandler.YEAR_KEY: year,
-                CommandHandler.RATING_KEY: rating,
-                CommandHandler.POSTER_KEY: poster
-            }
-
-            return title, movie_data
-        else:
-            # api error
-            return None, None
-
+        return found_movie_title, found_movie_data
 
     def _get_existing_movie(self, message: str, movies: dict) -> str:
         """
@@ -118,7 +151,7 @@ class CommandHandler:
             str: The validated movie name.
         """
         while True:
-            user_movie = get_valid_movie(message)
+            user_movie = get_title_from_user(message)
             if user_movie in movies:
                 return user_movie
             else:
@@ -134,7 +167,7 @@ class CommandHandler:
         Returns:
              list: The movie ratings for every movie in movies dict.
         """
-        return [m[CommandHandler.RATING_KEY] for m in movies.values()]
+        return [m[CommandHandler.RATING_KEY] for m in movies.values() if m[CommandHandler.RATING_KEY] is not None]
 
     def _command_delete_movie(self, movies: dict) -> str:
         """
@@ -166,12 +199,17 @@ class CommandHandler:
             Tuple of: updated_movie (str) and updated_rating (int).
         """
         updated_movie = self._get_existing_movie("Enter updated movie name: ", movies)
-        updated_rating = get_valid_rating()
+        updated_rating = get_rating_from_user()
 
         self._storage.update_movie(updated_movie, updated_rating)
         print(f"Movie {updated_movie} successfully updated")
 
         return updated_movie, updated_rating
+
+    def _get_movies_with_property(self, property: str, movies: dict):
+        filtered_movies = {movie: movie_data for movie, movie_data in movies.items() if
+                           movie_data[property] is not None}
+        return filtered_movies
 
     def _command_print_statistics(self, movies: dict):
         """
@@ -186,11 +224,12 @@ class CommandHandler:
         avg_rating = statistics.mean(ratings)
         median_rating = statistics.median(ratings)
 
-        highest_rated_movie = max(movies, key=lambda movie: movies[movie][CommandHandler.RATING_KEY])
-        lowest_rated_movie = min(movies, key=lambda movie: movies[movie][CommandHandler.RATING_KEY])
+        rated_movies = self._get_movies_with_property(CommandHandler.RATING_KEY, movies)
+        highest_rated_movie = max(rated_movies, key=lambda movie: movies[movie][CommandHandler.RATING_KEY])
+        lowest_rated_movie = min(rated_movies, key=lambda movie: movies[movie][CommandHandler.RATING_KEY])
 
         print(f"Average rating: {avg_rating:.1f}")
-        print(f"Median rating: {median_rating}")
+        print(f"Median rating: {median_rating:.1f}")
         print(f"Best movie: {highest_rated_movie}")
         print(f"Worst movie: {lowest_rated_movie}")
 
@@ -250,15 +289,16 @@ class CommandHandler:
         """
         Performs case-insensitive partial search in movies and prints matching entries.
     
+
         Args:
             movies (dict): Dictionary containing movies and their data (years/ratings).
         """
-        search_term = get_valid_movie("Enter part of movie name: ")
+        search_term = get_title_from_user("Enter part of movie name: ")
         search_term_lower = get_normalized_input(search_term)
         match_found = False
         for movie, movie_data in movies.items():
             if search_term_lower in get_normalized_input(movie):
-                print(f"{movie}, {movie_data['rating']}")
+                self._print_movie(movies, movie)
                 match_found = True
 
         if not match_found:
@@ -274,46 +314,70 @@ class CommandHandler:
             reverse (bool): If True, sorts in descending order, otherwise ascending.
         """
         if sort_by == CommandHandler.YEAR_KEY:
-            reverse = get_valid_yes_no_answer(
+            reverse = get_answer_from_user(
                 "Do you want to see the latest movies first? (yes/no): "
             )
+        # rated_movies = self._get_movies_with_property(CommandHandler.RATING_KEY, movies)
+        # rated_movies_with_known_year = self._get_movies_with_property(CommandHandler.YEAR_KEY, rated_movies)
 
-        sorted_movies = dict(
-            sorted(movies.items(), key=lambda item: item[1][sort_by], reverse=reverse)
+        sortable_movies = dict(
+            sorted(
+                self._get_movies_with_property(sort_by, movies).items(),
+                key=lambda item: item[1][sort_by],
+                reverse=reverse
+            )
         )
 
-        for movie in sorted_movies:
-            self._print_movie(movies, movie)
+        for movie in sortable_movies:
+            self._print_movie(sortable_movies, movie)
+
+        unsortable_movies = {title: movie_data for title, movie_data in movies.items() if
+                             (title, movie_data) not in sortable_movies.items()}
+
+        if unsortable_movies:
+            print(f"\nThese movies could not be sorted by '{sort_by}':")
+            for movie in unsortable_movies:
+                self._print_movie(unsortable_movies, movie)
 
     def _command_filter_movies(self, movies: dict):
         """
         Asks the user for optional filtering parameters: minimal rating, start year, end year.
         Prints only movies matching the parameter boundaries for year or rating entered by user.
         """
-        min_rating = get_valid_rating(
+        min_rating = get_rating_from_user(
             prompt="Enter minimum rating (leave blank for no minimum rating): ",
             allow_empty_input=True
         )
-        min_year = get_valid_year(
+        min_year = get_year_from_user(
             prompt="Enter start year (leave blank for no start year): ",
             allow_empty_input=True
         )
-        max_year = get_valid_year(
+        max_year = get_year_from_user(
             prompt="Enter end year (leave blank for no end year): ",
             allow_empty_input=True
         )
-
+        movies_filtered = 0
         for movie in movies:
             conditions_met = []
-            if not min_rating == "":
-                conditions_met.append(movies[movie][CommandHandler.RATING_KEY] >= min_rating)
-            if not min_year == "":
-                conditions_met.append(movies[movie][CommandHandler.YEAR_KEY] >= min_year)
-            if not max_year == "":
-                conditions_met.append(movies[movie][CommandHandler.YEAR_KEY] <= max_year)
+
+            movie_rating = movies[movie][CommandHandler.RATING_KEY]
+            movie_year = movies[movie][CommandHandler.YEAR_KEY]
+
+            if not min_rating == "" and movie_rating is not None:
+                conditions_met.append(movie_rating >= min_rating)
+
+            if not min_year == "" and movie_year is not None:
+                conditions_met.append(movie_year >= min_year)
+
+            if not max_year == "" and movie_year is not None:
+                conditions_met.append(movie_year <= max_year)
 
             if all(conditions_met):
+                movies_filtered += 1
                 self._print_movie(movies, movie)
+
+        if movies_filtered == 0:
+            print_error("No movies matched the filtering criteria.")
 
     def _command_create_rating_histogram(self, movies: dict):
         """

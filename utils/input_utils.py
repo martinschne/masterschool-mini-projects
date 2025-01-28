@@ -30,7 +30,7 @@ def get_normalized_input(text: str) -> str:
     Normalizes text by trimming whitespace, making it case-insensitive, and removing accents.
 
     Args:
-            text (str): The input string to normalize.
+        text (str): The input string to normalize.
 
     Returns:
         str: The normalized string with accents removed and in lowercase.
@@ -48,7 +48,7 @@ def get_normalized_input(text: str) -> str:
     return base_normalized_text
 
 
-def get_valid_rating(
+def get_rating_from_user(
         min_rating: int = MIN_MOVIE_RATING,
         max_rating: int = MAX_MOVIE_RATING,
         prompt: str | None = None,
@@ -86,7 +86,7 @@ def get_valid_rating(
             print_error("Invalid rating")
 
 
-def get_valid_year(prompt: str = None, allow_empty_input: bool = False) -> str | int:
+def get_year_from_user(prompt: str = None, allow_empty_input: bool = False) -> str | int:
     """
     Prompts the user to input a valid movie rating within a specified range.
 
@@ -117,7 +117,7 @@ def get_valid_year(prompt: str = None, allow_empty_input: bool = False) -> str |
             print_error("Invalid year")
 
 
-def get_valid_movie(prompt: str = "Enter new movie name: ") -> str:
+def get_title_from_user(prompt: str = "Enter new movie name: ") -> str:
     """
     Prompts the user to input a valid movie title.
 
@@ -138,7 +138,7 @@ def get_valid_movie(prompt: str = "Enter new movie name: ") -> str:
             print_error("Movie name cannot be empty.")
 
 
-def get_valid_yes_no_answer(prompt: str) -> bool:
+def get_answer_from_user(prompt: str) -> bool:
     """Get input from user and validate its form (yes/no) or (y/n).
 
     Returns:
