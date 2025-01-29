@@ -13,8 +13,8 @@ Icon
 # Environment variables file
 .env
 
-# Generated content
-output/
+# Output from website generation
+_static/index.html
 
 # Thumbnails
 ._*

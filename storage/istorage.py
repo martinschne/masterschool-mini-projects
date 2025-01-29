@@ -15,14 +15,7 @@ class IStorage(ABC):
         pass
 
     @abstractmethod
-    def add_movie(self, title: str, year: int, rating: float, poster: str):
-        """
-        Gets all your movies as an argument and saves them to the file.
-        """
-        pass
-
-    @abstractmethod
-    def delete_movie(self, title: str):
+    def add_movie(self, title: str, year: int, rating: float, poster_url: str):
         """
         Adds a movie to the movie database.
         Loads the information from the file, adds the movie,
@@ -31,11 +24,18 @@ class IStorage(ABC):
         pass
 
     @abstractmethod
-    def update_movie(self, title: str, rating: float):
+    def delete_movie(self, title: str):
         """
         Deletes a movie from the movie database.
         Loads the information from the JSON file, deletes the movie,
         and saves it. The function doesn't need to validate the input.
+        """
+        pass
+
+    @abstractmethod
+    def update_movie(self, title: str, notes: str):
+        """
+        Sets new notes for a movie from the movie database.
         """
         pass
 

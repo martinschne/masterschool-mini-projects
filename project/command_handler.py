@@ -23,7 +23,8 @@ from utils import (
     get_normalized_input,
     print_error,
     convert_to_number,
-    validate_url
+    validate_url,
+    get_notes_from_user
 )
 
 # Use the Agg backend for rendering to a file
@@ -37,7 +38,8 @@ class CommandHandler:
 
     RATING_KEY = "rating"
     YEAR_KEY = "year"
-    POSTER_KEY = "poster"
+    POSTER_URL_KEY = "poster_url"
+    NOTES_KEY = "notes"
 
     def __init__(self, storage: IStorage):
         """
@@ -96,12 +98,12 @@ class CommandHandler:
                 new_title = response_obj["Title"]
                 new_year = convert_to_number(response_obj["Year"], int)
                 new_rating = convert_to_number(response_obj["imdbRating"], float)
-                new_poster = validate_url(response_obj["Poster"])
+                new_poster_url = validate_url(response_obj["Poster"])
 
                 new_movie_data = {
                     CommandHandler.YEAR_KEY: new_year,
                     CommandHandler.RATING_KEY: new_rating,
-                    CommandHandler.POSTER_KEY: new_poster
+                    CommandHandler.POSTER_URL_KEY: new_poster_url
                 }
 
                 found_movie_title, found_movie_data = new_title, new_movie_data
@@ -132,7 +134,7 @@ class CommandHandler:
             # save the movie
             year = found_movie_data[CommandHandler.YEAR_KEY]
             rating = found_movie_data[CommandHandler.RATING_KEY]
-            poster = found_movie_data[CommandHandler.POSTER_KEY]
+            poster = found_movie_data[CommandHandler.POSTER_URL_KEY]
 
             self._storage.add_movie(found_movie_title, year, rating, poster)
             print(f"Movie '{found_movie_title}' was successfully added.")
@@ -190,22 +192,22 @@ class CommandHandler:
 
     def _command_update_movie(self, movies: dict) -> tuple[str, float]:
         """
-        Updates the rating of an existing movie in the provided movie dictionary.
-        Repeatedly prompts the user until valid movie and rating values are entered.
+        Updates the notes of an existing movie in the provided movie dictionary.
+        Repeatedly prompts the user until valid movie and notes are entered.
     
         Args:
             movies (dict): Dictionary containing movies and their data (years/ratings).
     
         Returns:
-            Tuple of: updated_movie (str) and updated_rating (int).
+            Tuple of: updated_movie (str) and new_notes (str).
         """
-        updated_movie = self._get_existing_movie("Enter updated movie name: ", movies)
-        updated_rating = get_rating_from_user()
+        updated_movie = self._get_existing_movie("Enter movie name: ", movies)
+        new_notes = get_notes_from_user()
 
-        self._storage.update_movie(updated_movie, updated_rating)
+        self._storage.update_movie(updated_movie, new_notes)
         print(f"Movie {updated_movie} successfully updated")
 
-        return updated_movie, updated_rating
+        return updated_movie, new_notes
 
     def _get_movies_with_property(self, property: str, movies: dict):
         filtered_movies = {movie: movie_data for movie, movie_data in movies.items() if
@@ -419,7 +421,7 @@ class CommandHandler:
             return file.read()
 
     def save_generated_page(self, content: str, page_filename="index.html"):
-        output_dir = "output"
+        output_dir = "_static"
         os.makedirs(output_dir, exist_ok=True)
         file_path = os.path.join(output_dir, page_filename)
 
@@ -448,9 +450,12 @@ class CommandHandler:
         for title, movie_data in movies.items():
             movie_poster = movie_data.get("poster", "https://placehold.co/128x193/?text=No%0Aposter")
             movie_year = movie_data.get("year")
+            movie_notes = movie_data.get("notes")
+            movie_rating = movie_data.get("rating")
             movie_grid_output += f"""<div class="movie">
-            <img class="movie-poster"
-                 src="{movie_poster or "https://placehold.co/128x193/?text=No%0Aposter"}" />
+            <img class="movie-poster" title="{movie_notes or ""}"
+                 src="{movie_poster or "https://placehold.co/128x193/?text=No%0APoster"}" />
+            <div class="movie-rating">&#x2B50; {movie_rating or "-"}&nbsp;&nbsp;&nbsp;</div>
             <div class="movie-title">{title}</div>
             <div class="movie-year">{movie_year or ""}</div>
         </div>
@@ -508,9 +513,8 @@ class CommandHandler:
             if deleted_movie is not None:
                 movies.pop(deleted_movie, None)
         elif user_choice == 4:
-            updated_movie, updated_rating = self._command_update_movie(movies)
-            if updated_movie is not None:
-                movies[updated_movie][CommandHandler.RATING_KEY] = updated_rating
+            updated_movie, new_notes = self._command_update_movie(movies)
+            movies[updated_movie][CommandHandler.NOTES_KEY] = new_notes
         elif user_choice == 5:
             self._command_print_statistics(movies)
         elif user_choice == 6:

@@ -12,7 +12,7 @@ class StorageCsv(StorageFile):
     reading, writing, and maintaining a database of movies.
     """
 
-    fieldnames = ["title", "rating", "year"]
+    fieldnames = ["title", "rating", "year", "poster_url", "notes"]
 
     def __init__(self, file_path: str):
         """
@@ -76,7 +76,15 @@ class StorageCsv(StorageFile):
                 title = movie
                 rating = movies[movie]["rating"]
                 year = movies[movie]["year"]
-                writer.writerow({"title": title, "rating": rating, "year": year})
+                poster_url = movies[movie]["poster_url"]
+                notes = movies[movie]["notes"]
+                writer.writerow({
+                    "title": title,
+                    "rating": rating,
+                    "year": year,
+                    "poster_url": poster_url,
+                    "notes": notes
+                })
 
     def list_movies(self):
         """
@@ -107,7 +115,9 @@ class StorageCsv(StorageFile):
                 # save the record to movies in desired format
                 movies[row["title"]] = {
                     "rating": float(row["rating"]),
-                    "year": int(row["year"])
+                    "year": int(row["year"]),
+                    "poster_url": row["poster_url"],
+                    "notes": row["notes"]
                 }
 
         return movies

@@ -138,6 +138,24 @@ def get_title_from_user(prompt: str = "Enter new movie name: ") -> str:
             print_error("Movie name cannot be empty.")
 
 
+def get_notes_from_user():
+    """
+    Prompts the user to input valid movie notes.
+
+    Returns:
+        (str): the validated movie notes entered by the user.
+    """
+    while True:
+        try:
+            movie_note = get_colored_input("Enter movie notes: ").strip()
+            if len(movie_note) < 1:
+                raise ValueError
+
+            return movie_note
+        except ValueError:
+            print_error("Movie notes cannot be empty.")
+
+
 def get_answer_from_user(prompt: str) -> bool:
     """Get input from user and validate its form (yes/no) or (y/n).
 

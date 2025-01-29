@@ -5,6 +5,7 @@ from .input_utils import (
     get_rating_from_user,
     get_year_from_user,
     get_title_from_user,
+    get_notes_from_user,
     get_answer_from_user,
     wait_for_user_action
 )

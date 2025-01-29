@@ -38,9 +38,14 @@ body {
 }
 
 .movie-title,
-.movie-year {
+.movie-year,
+.movie-rating {
     font-size: 0.8em;
     text-align: center;
+}
+
+.movie-rating {
+    margin-top: 5px;
 }
 
 .movie-title {

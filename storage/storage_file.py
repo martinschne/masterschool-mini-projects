@@ -14,7 +14,7 @@ class StorageFile(IStorage):
     def list_movies(self):
         raise NotImplementedError("Subclasses must implement 'list_movies'.")
 
-    def add_movie(self, title: str, year: int, rating: float, poster: str):
+    def add_movie(self, title: str, year: int, rating: float, poster_url: str):
         """
         Add a new movie to the database.
 
@@ -26,13 +26,14 @@ class StorageFile(IStorage):
             title (str): The title of the movie to add.
             year (int): The release year of the movie.
             rating (float): The rating of the movie.
-            poster (str): The URL of the movie's poster image.
+            poster_url (str): The URL of the movie's poster image.
         """
         movies = self.list_movies()
         movies[title] = {
             "rating": rating,
             "year": year,
-            "poster": poster
+            "poster_url": poster_url,
+            "notes": None
         }
 
         self._save_movies(movies)
@@ -53,20 +54,20 @@ class StorageFile(IStorage):
 
         self._save_movies(movies)
 
-    def update_movie(self, title: str, rating: float):
+    def update_movie(self, title: str, notes: str):
         """
-        Update the rating of a movie in the database.
+        Update the movie's notes in the database.
 
         This method retrieves all movies from the storage, updates the
-        rating of the specified movie, and saves the changes back to the
+        notes of the specified movie, and saves the changes back to the
         database.
 
         Args:
             title (str): The title of the movie to update.
-            rating (float): The new rating to assign to the movie.
+            notes (str): The new notes to assign to the movie.
         """
         movies = self.list_movies()
-        movies[title]["rating"] = rating
+        movies[title]["notes"] = notes
 
         self._save_movies(movies)
 

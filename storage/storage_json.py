@@ -57,14 +57,17 @@ class StorageJson(StorageFile):
             {
                 "Titanic": {
                     "rating": 9,
-                    "year": 1999
+                    "year": 1999,
+                    "poster_url": "https://example_movie.com/",
+                    "notes": "Very good movie..."
                 },
                 "Inception": {
                     "rating": 8.8,
-                    "year": 2010
+                    "year": 2010,
+                    "poster_url": "https://example_movie2.com/",
+                    "notes": None
                 }
             }
-
         Raises:
             IOError: If saving to the JSON file fails due to file system
             issues.
@@ -86,11 +89,15 @@ class StorageJson(StorageFile):
             {
                 "Titanic": {
                     "rating": 9,
-                    "year": 1999
+                    "year": 1999,
+                    "poster_url": "https://example_movie.com/",
+                    "notes": "Very good movie..."
                 },
                 "Inception": {
                     "rating": 8.8,
-                    "year": 2010
+                    "year": 2010,
+                    "poster_url": "https://example_movie2.com/",
+                    "notes": None
                 }
             }
         """
