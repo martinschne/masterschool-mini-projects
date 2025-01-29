@@ -18,7 +18,8 @@ class MovieApp:
         "Movies sorted by rating",
         "Movies sorted by year",
         "Filter movies by year/rating",
-        "Create Rating Histogram"
+        "Create Rating Histogram",
+        "Generate website"
     ]
 
     def __new__(cls, storage: IStorage):

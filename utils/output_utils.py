@@ -1,3 +1,6 @@
+from typing import Callable
+from urllib.parse import urlparse
+
 from .ansi_colors import COLORS
 
 
@@ -23,7 +26,7 @@ def reset_output_color():
     print(COLORS['RESET'], end="")
 
 
-def convert_to_number(value, conversion_func):
+def convert_to_number(value: str, conversion_func: Callable) -> int | float | None:
     """
     Converts a value to a number using a specified conversion function.
 
@@ -32,7 +35,7 @@ def convert_to_number(value, conversion_func):
     conversion fails (raises a `ValueError`), it returns `None`.
 
     Args:
-        value (Any): The input value to convert.
+        value (str): The input value to convert.
         conversion_func (Callable): The function to use for conversion (e.g., `int`, `float`).
 
     Returns:
@@ -50,3 +53,28 @@ def convert_to_number(value, conversion_func):
         return conversion_func(value)
     except ValueError:
         return None
+
+
+def validate_url(url: str) -> str | None:
+    """Validates a given URL and returns it if valid, otherwise returns None.
+
+    This function checks whether the provided URL has both a scheme
+    (e.g., "http" or "https") and a network location (domain). If the URL
+    is valid, it returns the original URL; otherwise, it returns None.
+
+    Args:
+        url (str): The URL to validate.
+
+    Returns:
+        str | None: The original URL if valid, otherwise None.
+
+    Example:
+        >>> validate_url("https://example.com")
+        'https://example.com'
+        >>> validate_url("invalid-url")
+        None
+    """
+    parsed_url = urlparse(url)
+    if parsed_url.scheme and parsed_url.netloc:
+        return url
+    return None

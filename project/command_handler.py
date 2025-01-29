@@ -22,7 +22,8 @@ from utils import (
     get_answer_from_user,
     get_normalized_input,
     print_error,
-    convert_to_number
+    convert_to_number,
+    validate_url
 )
 
 # Use the Agg backend for rendering to a file
@@ -83,7 +84,7 @@ class CommandHandler:
         try:
             response = requests.get(url=urljoin(base_url, "?" + urlencode(params)))
         except ConnectionError:
-            print("Error connecting to the omdb server, please try again later.")
+            print_error("Error: Connecting to the omdb server failed, please try again later.")
             return None, None
 
         response_obj = json.loads(response.text)
@@ -95,7 +96,7 @@ class CommandHandler:
                 new_title = response_obj["Title"]
                 new_year = convert_to_number(response_obj["Year"], int)
                 new_rating = convert_to_number(response_obj["imdbRating"], float)
-                new_poster = response_obj["Poster"]
+                new_poster = validate_url(response_obj["Poster"])
 
                 new_movie_data = {
                     CommandHandler.YEAR_KEY: new_year,
@@ -107,7 +108,7 @@ class CommandHandler:
             else:
                 print(response_obj["Error"])
         else:
-            print("Error accessing movie data, please try again later.")
+            print_error("Error: Accessing movie data failed, please try again later.")
 
         return found_movie_title, found_movie_data
 
@@ -317,8 +318,6 @@ class CommandHandler:
             reverse = get_answer_from_user(
                 "Do you want to see the latest movies first? (yes/no): "
             )
-        # rated_movies = self._get_movies_with_property(CommandHandler.RATING_KEY, movies)
-        # rated_movies_with_known_year = self._get_movies_with_property(CommandHandler.YEAR_KEY, rated_movies)
 
         sortable_movies = dict(
             sorted(
@@ -413,6 +412,59 @@ class CommandHandler:
         plt.savefig(f"{user_filename}.png")
         plt.close()
 
+    def _load_template_page(self, page_filename: str):
+        """Reads the content of a file and returns it as a string."""
+        static_dir = "_static"
+        with open(os.path.join(static_dir, page_filename), "r", encoding="utf-8") as file:
+            return file.read()
+
+    def save_generated_page(self, content: str, page_filename="index.html"):
+        output_dir = "output"
+        os.makedirs(output_dir, exist_ok=True)
+        file_path = os.path.join(output_dir, page_filename)
+
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(content)
+
+        print(f"Page saved at: {file_path}")
+
+    def _command_generate_page(self, movies: dict):
+        """
+        Generates a html file according to the template.
+
+        Args:
+            movies (dict): Dictionary containing movies and their data (years/ratings).
+        """
+        try:
+            html_template = self._load_template_page("index_template.html")
+        except FileNotFoundError:
+            print_error("Error: Html template is missing. Unable to generate the website.")
+            return
+        except IOError:
+            print_error("Error: Could not read the template file. Unable to generate the website.")
+            return
+
+        movie_grid_output = ""
+        for title, movie_data in movies.items():
+            movie_poster = movie_data.get("poster", "https://placehold.co/128x193/?text=No%0Aposter")
+            movie_year = movie_data.get("year")
+            movie_grid_output += f"""<div class="movie">
+            <img class="movie-poster"
+                 src="{movie_poster or "https://placehold.co/128x193/?text=No%0Aposter"}" />
+            <div class="movie-title">{title}</div>
+            <div class="movie-year">{movie_year or ""}</div>
+        </div>
+        """
+
+        html_template = html_template.replace("__TEMPLATE_TITLE__", "My Movie App")
+        html_template = html_template.replace("__TEMPLATE_MOVIE_GRID__", movie_grid_output.rstrip())
+
+        try:
+            self.save_generated_page(html_template)
+            print("Website was successfully generated.")
+        except Exception as e:
+            print_error("Error: generating website failed!\n", e)
+
     def execute_command(self, user_choice: int, movies: dict) -> bool:
         """
         Executes a task based on the user's menu choice.
@@ -439,6 +491,10 @@ class CommandHandler:
 
         print()
 
+        if not movies and user_choice != 2:
+            print_error("No movies were found. Try adding some first.\n")
+            return True
+
         if user_choice == 0:
             sys.exit("Bye!")
         elif user_choice == 1:
@@ -448,10 +504,13 @@ class CommandHandler:
             if new_movie_data is not None:
                 movies[new_movie] = new_movie_data
         elif user_choice == 3:
-            movies.pop(self._command_delete_movie(movies), None)
+            deleted_movie = self._command_delete_movie(movies)
+            if deleted_movie is not None:
+                movies.pop(deleted_movie, None)
         elif user_choice == 4:
             updated_movie, updated_rating = self._command_update_movie(movies)
-            movies[updated_movie][CommandHandler.RATING_KEY] = updated_rating
+            if updated_movie is not None:
+                movies[updated_movie][CommandHandler.RATING_KEY] = updated_rating
         elif user_choice == 5:
             self._command_print_statistics(movies)
         elif user_choice == 6:
@@ -466,6 +525,8 @@ class CommandHandler:
             self._command_filter_movies(movies)
         elif user_choice == 11:
             self._command_create_rating_histogram(movies)
+        elif user_choice == 12:
+            self._command_generate_page(movies)
 
         print()
 

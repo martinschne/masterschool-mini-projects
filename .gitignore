@@ -13,6 +13,9 @@ Icon
 # Environment variables file
 .env
 
+# Generated content
+output/
+
 # Thumbnails
 ._*
 
