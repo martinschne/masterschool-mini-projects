@@ -491,7 +491,7 @@ class CommandHandler:
 
         print()
 
-        if not movies and user_choice != 2:
+        if not movies and user_choice != 0 and user_choice != 2:
             print_error("No movies were found. Try adding some first.\n")
             return True
 
