@@ -7,6 +7,7 @@ from utils import print_error
 
 EXAMPLE_FILENAME = "movies.json"
 
+
 def parse_args():
     """
     Parses command-line arguments and initializes the appropriate storage class.
