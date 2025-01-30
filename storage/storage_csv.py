@@ -1,6 +1,7 @@
 import csv
 import os
 
+from utils import convert_to_number, validate_url
 from .storage_file import StorageFile
 
 
@@ -114,9 +115,9 @@ class StorageCsv(StorageFile):
             for row in reader:
                 # save the record to movies in desired format
                 movies[row["title"]] = {
-                    "rating": float(row["rating"]),
-                    "year": int(row["year"]),
-                    "poster_url": row["poster_url"],
+                    "rating": convert_to_number(row["rating"], float),
+                    "year": convert_to_number(row["year"], int),
+                    "poster_url": validate_url(row["poster_url"]),
                     "notes": row["notes"]
                 }
 

@@ -153,12 +153,17 @@ class CommandHandler:
         Returns:
             str: The validated movie name.
         """
-        while True:
+        trials = 3
+        while trials != 0:
             user_movie = get_title_from_user(message)
             if user_movie in movies:
                 return user_movie
             else:
                 print_error(f"Movie {user_movie} does not exist!")
+                trials -= 1
+
+        print("Tip: list all movies to see available movies.")
+        return None
 
     def _get_movie_ratings(self, movies: dict) -> list[float]:
         """
@@ -185,8 +190,9 @@ class CommandHandler:
         """
         deleted_movie = self._get_existing_movie("Enter movie name to delete: ", movies)
 
-        self._storage.delete_movie(deleted_movie)
-        print("Movie successfully deleted")
+        if deleted_movie is not None:
+            self._storage.delete_movie(deleted_movie)
+            print("Movie successfully deleted")
 
         return deleted_movie
 
@@ -202,10 +208,13 @@ class CommandHandler:
             Tuple of: updated_movie (str) and new_notes (str).
         """
         updated_movie = self._get_existing_movie("Enter movie name: ", movies)
-        new_notes = get_notes_from_user()
+        new_notes = None
 
-        self._storage.update_movie(updated_movie, new_notes)
-        print(f"Movie {updated_movie} successfully updated")
+        if updated_movie is not None:
+            new_notes = get_notes_from_user()
+
+            self._storage.update_movie(updated_movie, new_notes)
+            print(f"Movie {updated_movie} successfully updated")
 
         return updated_movie, new_notes
 
@@ -448,13 +457,14 @@ class CommandHandler:
 
         movie_grid_output = ""
         for title, movie_data in movies.items():
-            movie_poster = movie_data.get("poster", "https://placehold.co/128x193/?text=No%0Aposter")
+            movie_poster = movie_data.get("poster_url", "https://placehold.co/128x193/?text=No%0Aposter")
             movie_year = movie_data.get("year")
             movie_notes = movie_data.get("notes")
             movie_rating = movie_data.get("rating")
             movie_grid_output += f"""<div class="movie">
             <img class="movie-poster" title="{movie_notes or ""}"
-                 src="{movie_poster or "https://placehold.co/128x193/?text=No%0APoster"}" />
+                 src="{movie_poster or "https://placehold.co/128x193/?text=No%0APoster"}"
+                 alt="{title} - movie poster" />
             <div class="movie-rating">&#x2B50; {movie_rating or "-"}&nbsp;&nbsp;&nbsp;</div>
             <div class="movie-title">{title}</div>
             <div class="movie-year">{movie_year or ""}</div>
@@ -514,7 +524,8 @@ class CommandHandler:
                 movies.pop(deleted_movie, None)
         elif user_choice == 4:
             updated_movie, new_notes = self._command_update_movie(movies)
-            movies[updated_movie][CommandHandler.NOTES_KEY] = new_notes
+            if updated_movie is not None:
+                movies[updated_movie][CommandHandler.NOTES_KEY] = new_notes
         elif user_choice == 5:
             self._command_print_statistics(movies)
         elif user_choice == 6:
