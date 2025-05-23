@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+</head>
+<body>
+<h2>List of Books</h2>
+{% include "_flash_messages.html" %}
+
+<!-- searching form -->
+<form method="GET" action="/">
+    <label for="search">Search:</label>
+    <input id="search" name="search" type="text"/>
+    <button type="submit">Search</button>
+</form>
+<br/>
+<!-- sorting form -->
+<form method="GET" action="/">
+    <label for="sort_by">Sort by:</label>
+    <select name="sort_by" id="sort_by">
+        <option value="title" {% if sort_by == "title" %}selected{% endif %}>Title</option>
+        <option value="author" {% if sort_by == "author" %}selected{% endif %}>Author</option>
+    </select>
+
+    <label for="sort">Order:</label>
+    <select name="sort" id="sort">
+        <option value="asc" {% if sort_order == "asc" %}selected{% endif %}>Ascending</option>
+        <option value="desc" {% if sort_order == "desc" %}selected{% endif %}>Descending</option>
+    </select>
+
+    <button type="submit">Sort</button>
+</form>
+{% if books %}
+    {% for book in books %}
+    <div>
+        <p><strong>{{ book.title }}</strong> written by <strong>{{ book.author }}</strong></p>
+        <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg"
+             alt="{{ book.title }} cover"/>
+    </div>
+    <!-- delete functionality -->
+    <form action="{{ url_for('delete', book_id=book.id) }}" method="POST">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+    {% endfor %}
+{% endif %}
+{% if search_query and not books %}
+    <p>No books that match the search criteria were found.</p>
+{% endif %}
+{% if not search_query and not books %}
+    <p>No books found.</p>
+{% endif %}
+</body>
+</html>
