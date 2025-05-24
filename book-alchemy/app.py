@@ -13,7 +13,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Absolute path to SQLite database
-db_path = os.path.join(os.getcwd(), "data", "library.sqlite")
+db_path = os.path.join(os.getcwd(), "data", "library.db")
 os.makedirs(os.path.dirname(db_path), exist_ok=True)  # Create 'data' folder if not exists
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
