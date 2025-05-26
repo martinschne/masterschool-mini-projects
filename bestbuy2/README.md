@@ -26,7 +26,7 @@ Additionally, it offers more features:
   - *Technical Detail*: Calculates the final order price by applying relevant discounts.
 
  
-## Setup:
+## Usage:
 
 1. **Run the app**:
    ```bash

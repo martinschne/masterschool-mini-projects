@@ -2,7 +2,7 @@
 
 Simple script generating a website with a list of animals with selected skin type from animal data stored in a json file.
 
-## Setup
+## Usage
 
 1. **Run the file**:
    ```bash

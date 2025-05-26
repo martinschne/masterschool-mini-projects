@@ -6,7 +6,7 @@ A simple terminal application in OOP style built with Python that demonstrates r
 - Querying the total quantity of stock
 - Ordering products
 
-## Setup:
+## Usage:
 
 1. **Run the app**:
    ```bash

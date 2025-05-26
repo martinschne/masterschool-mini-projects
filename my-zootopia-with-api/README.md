@@ -5,11 +5,20 @@ by name and selected skin type using HTML template. Animal data come from Ninjas
 
 Explore it here: https://api-ninjas.com/api/animals
 
-## Installation
-
-Clone the repository and install the dependencies in requirements.txt using `pip`
-
 ## Usage
 
-To use this program, run the following command - `python animals_web_generator.py`. 
-Then follow the instructions in terminal window.
+1. **Install the dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   
+
+2. **Run the file**:
+   ```bash
+   python animals_web_generator.py
+   ```
+   
+3. **Enter the desired skin type**:
+   >   Please enter the skin type: Hair
+
+4. **Open the generated webpage `animals.html` in a browser**

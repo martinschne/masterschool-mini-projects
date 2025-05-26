@@ -6,7 +6,7 @@ A simple blog web application with both frontend and backend components. The fol
 - Perform create, read, update, and delete (CRUD) operations on posts
 - Search for posts by title or content
 
-## Setup
+## Usage
 
 1. **Install the dependencies**:
    ```bash

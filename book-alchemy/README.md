@@ -13,7 +13,7 @@ A simple library management web application with the following features:
 - SQLAlchemy
 - SQLite
 
-## Setup
+## Usage
 
 1. **Install the dependencies**:
    ```bash
